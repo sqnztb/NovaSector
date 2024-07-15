@@ -83,3 +83,8 @@ endmap
 map serenitystation
 	votable
 endmap
+
+map ceres
+	minplayers 50
+	votable
+endmap
