@@ -441,8 +441,8 @@
 	var/health_change_per_second = 0
 	if(!proper_environment())
 		health_change_per_second -= 3 //Dying here
-	if(is_hungry())
-		health_change_per_second -= 0.5 //Starving
+	//if(is_hungry()) --- sqn edit, no more dead fishies
+	//	health_change_per_second -= 0.5 //Starving
 	else
 		health_change_per_second += 0.5 //Slowly healing
 	adjust_health(health + health_change_per_second * seconds_per_tick)

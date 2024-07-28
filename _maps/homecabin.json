@@ -1,0 +1,24 @@
+{
+	"version": 1,
+	"map_name": "Home Cabin",
+	"map_path": "map_files/homecabin",
+	"map_file": "homecabin.dmm",
+	"shuttles": {
+		"cargo": "cargo_skyrat",
+		"ferry": "ferry_fancy",
+		"whiteship": "whiteship_tram",
+		"emergency": "emergency_tram"
+	},
+	"traits": [
+		{
+			"Up": 1,
+			"Baseturf": "/turf/open/misc/snow",
+			"Linkage": "Cross"
+		},
+		{
+			"Down": -1,
+			"Baseturf": "/turf/open/misc/snow",
+			"Linkage": "Cross"
+		}
+	]
+}
