@@ -12,8 +12,7 @@
 	var/hunger_threshold_low = NUTRITION_LEVEL_FED
 	var/hunger_threshold_high = NUTRITION_LEVEL_FULL
 
-
-
+/*
 /obj/item/organ/internal/cyberimp/chest/nutriment/sqnrp/on_insert(mob/living/carbon/owner)
 	. = ..()
 	ADD_TRAIT(owner, TRAIT_NOBREATH, ORGAN_TRAIT)
@@ -21,7 +20,7 @@
 /obj/item/organ/internal/cyberimp/chest/nutriment/sqnrp/on_remove(mob/living/carbon/owner)
 	. = ..()
 	REMOVE_TRAIT(owner, TRAIT_NOBREATH, ORGAN_TRAIT)
-
+*/
 /obj/item/organ/internal/cyberimp/chest/nutriment/sqnrp/on_life(seconds_per_tick, times_fired)
 	if(owner.nutrition <= hunger_threshold_low)
 		owner.adjust_nutrition(100 * seconds_per_tick)
