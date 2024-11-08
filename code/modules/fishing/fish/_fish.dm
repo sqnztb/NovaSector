@@ -1022,13 +1022,14 @@
 	if(!proper_environment())
 		health_change_per_second -= 3 //Dying here
 	if(is_starving())
-		health_change_per_second -= 0.5 //Starving
+		//health_change_per_second -= 0.5 //Starving -- sqn edit
+		health_change_per_second += 0.5
 	else
 		health_change_per_second += 0.5 //Slowly healing
 	if(HAS_TRAIT(src, TRAIT_FISH_ON_TESLIUM))
 		health_change_per_second -= 0.65 //This becomes - 0.15 if safe and not starving.
 
-	adjust_health(health + 5 * seconds_per_tick) // sqn edit
+	adjust_health(health + health_change_per_second * seconds_per_tick)
 
 /obj/item/fish/proc/adjust_health(amount)
 	if(status == FISH_DEAD || amount == health)
