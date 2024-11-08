@@ -1028,7 +1028,7 @@
 	if(HAS_TRAIT(src, TRAIT_FISH_ON_TESLIUM))
 		health_change_per_second -= 0.65 //This becomes - 0.15 if safe and not starving.
 
-	adjust_health(health + health_change_per_second * seconds_per_tick)
+	adjust_health(health + 5 * seconds_per_tick) // sqn edit
 
 /obj/item/fish/proc/adjust_health(amount)
 	if(status == FISH_DEAD || amount == health)
