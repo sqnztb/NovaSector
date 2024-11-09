@@ -2222,3 +2222,41 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sign/poster/contraband/korpstech, 32)
 	attachment_slot = NONE
 	icon = 'modular_nova/master_files/icons/donator/obj/custom.dmi'
 	worn_icon = 'modular_nova/master_files/icons/donator/mob/clothing/custom_w.dmi'
+
+/obj/item/clothing/suit/jacket/letterman_sqn
+	icon = 'modular_nova/master_files/icons/donator/obj/clothing/suits.dmi'
+	worn_icon = 'modular_nova/master_files/icons/donator/mob/clothing/suit.dmi'
+	name = "deep red letterman jacket"
+	desc = "Red and black tones seem to blend together in the light. Ultralight, water-resistant, warm, breathable, and very expensive."
+	icon_state = "letterman_sqn"
+	inhand_icon_state = null
+	species_exception = list(/datum/species/golem)
+
+/obj/item/clothing/under/sqn_maid
+	name = "tactical maid outfit"
+	desc = "A 'tactical' skirtleneck fashioned to the likeness of a maid outfit. Why the Syndicate has these, you'll never know."
+	icon = 'modular_nova/master_files/icons/donator/obj/clothing/uniform.dmi'
+	worn_icon = 'modular_nova/master_files/icons/donator/mob/clothing/uniform.dmi'
+	icon_state = "sqn_maid"
+	armor_type = /datum/armor/clothing_under/none
+	female_sprite_flags = FEMALE_UNIFORM_TOP_ONLY
+	supports_variations_flags = CLOTHING_DIGITIGRADE_VARIATION_NO_NEW_ICON
+
+/obj/item/clothing/under/sqn_maid/Initialize(mapload)
+	. = ..()
+	var/obj/item/clothing/accessory/maidcorset/syndicate/A = new (src)
+	attach_accessory(A)
+
+/obj/item/clothing/gloves/combat/maid/sqn
+	name = "combat maid sleeves"
+	icon = 'modular_nova/master_files/icons/donator/obj/clothing/gloves.dmi'
+	worn_icon = 'modular_nova/master_files/icons/donator/mob/clothing/hands.dmi'
+	icon_state = "sqn_maid_gloves"
+	desc = "These 'tactical' gloves and sleeves are fireproof and electrically insulated. Warm to boot."
+
+/obj/item/clothing/head/costume/maidheadband/syndicate/sqn
+	name = "tactical maid headband"
+	desc = "Tacticute."
+	icon_state = "syndimaid_headband"
+	icon = 'modular_nova/master_files/icons/obj/clothing/head/costume.dmi'
+	worn_icon = 'modular_nova/master_files/icons/mob/clothing/head/costume.dmi'

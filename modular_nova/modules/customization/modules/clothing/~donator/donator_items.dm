@@ -180,6 +180,10 @@
 	new /obj/item/nanite_leg_reinforcement(src)
 	new /obj/item/lipstick/quantum/sqn(src)
 	new /obj/item/clothing/glasses/hud/ar/projector/science/sqn(src)
+	new /obj/item/clothing/suit/jacket/letterman_sqn(src)
+	new /obj/item/clothing/under/sqn_maid(src)
+	new /obj/item/clothing/gloves/combat/maid/sqn(src)
+	new /obj/item/clothing/head/costume/maidheadband/syndicate/sqn(src)
 
 /obj/vehicle/ridden/wheelchair/hardlight
 	name = "hardlight wheelchair"
