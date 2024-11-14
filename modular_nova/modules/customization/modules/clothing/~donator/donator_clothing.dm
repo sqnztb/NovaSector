@@ -2256,6 +2256,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/structure/sign/poster/contraband/korpstech, 32)
 /obj/item/clothing/under/sqn_maid/Initialize(mapload)
 	. = ..()
 	var/obj/item/clothing/accessory/maidcorset/syndicate/A = new (src)
+	A.name = "frilly gothic apron"
 	attach_accessory(A)
 
 /obj/item/clothing/gloves/combat/maid/sqn
