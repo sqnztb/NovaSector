@@ -16,7 +16,7 @@
 	icon_state = "capt_dining"
 
 /area/station/command/cc_dock
-	name = "Central Command Ferry Dock"
+	name = "Central Command Ferry Doasdasdasdck"
 	icon = 'modular_nova/modules/mapping/icons/areas/areas_station.dmi'
 	icon_state = "cc_dock"
 
@@ -35,7 +35,7 @@
 /area/station/command/heads_quarters/blueshield
 	name = "Blueshield's Office"
 	icon = 'modular_nova/modules/mapping/icons/areas/areas_station.dmi'
-	icon_state = "blueshield"
+	icon_state = "blueshieldy"
 
 //Bridge Officer area
 /area/station/command/heads_quarters/bridge_officer
