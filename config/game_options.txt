@@ -50,7 +50,7 @@ MULTIPLICATIVE_MOVESPEED /mob/living/basic 0
 
 ## NAMES ###
 ## If uncommented this adds a random surname to a player's name if they only specify one name.
-HUMANS_NEED_SURNAMES
+#HUMANS_NEED_SURNAMES
 
 ## If uncommented, this forces all players to use random names !and appearances!.
 #FORCE_RANDOM_NAMES
@@ -147,17 +147,17 @@ ALLOW_LATEJOIN_ANTAGONISTS
 #DISABLE_WAROPS
 
 ## Uncomment to enable dynamic ruleset config file.
-DYNAMIC_CONFIG_ENABLED
+#DYNAMIC_CONFIG_ENABLED
 
 ## Uncomment to enable event editing config file.
 #EVENTS_CONFIG_ENABLED
 
 ## RANDOM EVENTS ###
 ## Comment this out to disable random events during the round.
-ALLOW_RANDOM_EVENTS
+#ALLOW_RANDOM_EVENTS
 
 ## Uncomment this to disable station traits.
-#FORBID_STATION_TRAITS
+FORBID_STATION_TRAITS
 
 ## The lower bound, in deciseconds, for how soon another random event can be scheduled.
 ## Defaults to 1500 deciseconds or 2.5 minutes
@@ -190,7 +190,7 @@ ALLOW_AI_MULTICAM
 
 ## How long the delay is before the Away Mission gate opens. Default is half an hour.
 ## 600 is one minute.
-GATEWAY_DELAY 18000
+GATEWAY_DELAY 10
 
 ## Overrides to gateway delay for specific away mission start points.
 GATEWAY_DELAYS_BY_ID AWAYSTART_BEACH 6000
@@ -219,7 +219,7 @@ MINIMAL_ACCESS_THRESHOLD 20
 #SECURITY_HAS_MAINT_ACCESS
 
 ## Uncomment to give everyone maint access.
-#EVERYONE_HAS_MAINT_ACCESS
+EVERYONE_HAS_MAINT_ACCESS
 
 ## Comment this out this to make security officers spawn in departmental security posts
 #SEC_START_BRIG
