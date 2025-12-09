@@ -19,7 +19,7 @@
 		TRAIT_NO_ZOMBIFY,
 	)
 	inherent_biotypes = MOB_UNDEAD | MOB_HUMANOID
-	mutanttongue = /obj/item/organ/internal/tongue/zombie
+	mutanttongue = /obj/item/organ/tongue/zombie
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | MIRROR_PRIDE | ERT_SPAWN
 	bodytemp_normal = T0C // They have no natural body heat, the environment regulates body temp
 	bodytemp_heat_damage_limit = FIRE_MINIMUM_TEMPERATURE_TO_SPREAD // Take damage at fire temp
@@ -46,6 +46,12 @@
 		return TRUE
 	return ..()
 
+/datum/species/mutant/get_species_description()
+	return placeholder_description
+
+/datum/species/mutant/get_species_lore()
+	return list(placeholder_lore)
+
 /mob/living/carbon/human/species/mutant
 	race = /datum/species/mutant
 
@@ -56,7 +62,7 @@
 	name = "Mutated Abomination"
 	id = SPECIES_MUTANT_INFECTIOUS
 	damage_modifier = 10
-	mutanteyes = /obj/item/organ/internal/eyes/zombie
+	mutanteyes = /obj/item/organ/eyes/zombie
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | ERT_SPAWN
 	bodypart_overrides = list(
 		BODY_ZONE_HEAD = /obj/item/bodypart/head/mutant_zombie,
@@ -72,7 +78,7 @@
 	/// The cooldown before the mutant can start regenerating
 	COOLDOWN_DECLARE(regen_cooldown)
 
-/datum/species/mutant/infectious/on_species_gain(mob/living/carbon/human/human_who_gained_species, datum/species/old_species, pref_load)
+/datum/species/mutant/infectious/on_species_gain(mob/living/carbon/human/human_who_gained_species, datum/species/old_species, pref_load, regenerate_icons)
 	. = ..()
 	human_who_gained_species.AddComponent(/datum/component/mutant_hands, mutant_hand_path = hands_to_give)
 	RegisterSignal(human_who_gained_species, COMSIG_MOB_AFTER_APPLY_DAMAGE, PROC_REF(queue_regeneration))
@@ -154,9 +160,12 @@
 		var/heal_amt = heal_rate
 		if(HAS_TRAIT(carbon_mob, TRAIT_CRITICAL_CONDITION))
 			heal_amt *= 2
-		carbon_mob.heal_overall_damage(heal_amt * seconds_per_tick, heal_amt * seconds_per_tick)
-		carbon_mob.adjustStaminaLoss(-heal_amt * seconds_per_tick)
-		carbon_mob.adjustToxLoss(-heal_amt * seconds_per_tick)
+		var/need_mob_update
+		need_mob_update += carbon_mob.heal_overall_damage(heal_amt * seconds_per_tick, heal_amt * seconds_per_tick, updating_health = FALSE)
+		need_mob_update += carbon_mob.adjust_stamina_loss(-heal_amt * seconds_per_tick, updating_stamina = FALSE)
+		need_mob_update += carbon_mob.adjust_tox_loss(-heal_amt * seconds_per_tick, updating_health = FALSE)
+		if(need_mob_update)
+			carbon_mob.updatehealth()
 		for(var/i in carbon_mob.all_wounds)
 			var/datum/wound/iter_wound = i
 			if(SPT_PROB(2-(iter_wound.severity/2), seconds_per_tick))
@@ -262,10 +271,10 @@
 		target.gib()
 		// zero as argument for no instant health update
 		var/need_health_update
-		need_health_update += user.adjustBruteLoss(-hp_gained, updating_health = FALSE)
-		need_health_update += user.adjustToxLoss(-hp_gained, updating_health = FALSE)
-		need_health_update += user.adjustFireLoss(-hp_gained, updating_health = FALSE)
+		need_health_update += user.adjust_brute_loss(-hp_gained, updating_health = FALSE)
+		need_health_update += user.adjust_tox_loss(-hp_gained, updating_health = FALSE)
+		need_health_update += user.adjust_fire_loss(-hp_gained, updating_health = FALSE)
 		if(need_health_update)
 			user.updatehealth()
-		user.adjustOrganLoss(ORGAN_SLOT_BRAIN, -hp_gained) // Zom Bee gibbers "BRAAAAISNSs!1!"
+		user.adjust_organ_loss(ORGAN_SLOT_BRAIN, -hp_gained) // Zom Bee gibbers "BRAAAAISNSs!1!"
 		user.set_nutrition(min(user.nutrition + hp_gained, NUTRITION_LEVEL_FULL))

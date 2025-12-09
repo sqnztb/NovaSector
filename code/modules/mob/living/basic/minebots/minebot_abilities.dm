@@ -58,7 +58,6 @@
 	desc = "Launch a missile towards the target!"
 	cooldown_time = 10 SECONDS
 	shared_cooldown = NONE
-	melee_cooldown_time = 0 SECONDS
 	///how long before we launch said missile
 	var/wind_up_timer = 1 SECONDS
 
@@ -100,7 +99,6 @@
 	overlay_icon_state = "bg_default_border"
 	cooldown_time = 10 SECONDS
 	shared_cooldown = NONE
-	melee_cooldown_time = 0 SECONDS
 	click_to_activate = FALSE
 
 /datum/action/cooldown/mob_cooldown/drop_landmine/IsAvailable(feedback = TRUE)
@@ -133,7 +131,7 @@
 /obj/effect/temp_visual/rising_rocket/Initialize(mapload)
 	. = ..()
 	playsound(src, 'sound/items/weapons/minebot_rocket.ogg', 100, FALSE)
-	animate(src, pixel_y = base_pixel_y + 500, time = duration, easing = EASE_IN)
+	animate(src, pixel_y = base_pixel_y + 500, time = duration, easing = QUAD_EASING|EASE_IN)
 
 /obj/effect/temp_visual/falling_rocket
 	name = "Missile"

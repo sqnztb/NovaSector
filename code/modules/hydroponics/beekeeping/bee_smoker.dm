@@ -25,6 +25,10 @@
 	. = ..()
 	beesmoke_loop = new(src)
 
+/obj/item/bee_smoker/Destroy(force)
+	remove_shared_particles(/particles/smoke/bee_smoke)
+	return ..()
+
 /obj/item/bee_smoker/attack_self(mob/user)
 	. = ..()
 	if(.)
@@ -71,7 +75,7 @@
 
 	return .
 
-/obj/item/bee_smoker/attackby(obj/item/herb, mob/living/carbon/human/user, list/modifiers)
+/obj/item/bee_smoker/attackby(obj/item/herb, mob/living/carbon/human/user, list/modifiers, list/attack_modifiers)
 	. = ..()
 	if(.)
 		return
@@ -100,13 +104,13 @@
 
 	if(!activated)
 		beesmoke_loop.stop()
-		QDEL_NULL(particles)
+		remove_shared_particles(/particles/smoke/bee_smoke)
 		STOP_PROCESSING(SSobj, src)
 		return
 
 	beesmoke_loop.start()
 	START_PROCESSING(SSobj, src)
-	particles = new /particles/smoke/bee_smoke
+	add_shared_particles(/particles/smoke/bee_smoke)
 
 /particles/smoke/bee_smoke
 	lifespan = 0.4 SECONDS

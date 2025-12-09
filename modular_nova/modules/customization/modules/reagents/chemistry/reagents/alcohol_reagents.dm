@@ -259,7 +259,7 @@
 /datum/reagent/consumable/ethanol/hotlime_miami/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
 	. = ..()
 	affected_mob.set_drugginess(1.5 MINUTES * REM * seconds_per_tick)
-	if(affected_mob.adjustStaminaLoss(-2 * REM * seconds_per_tick, updating_stamina = FALSE))
+	if(affected_mob.adjust_stamina_loss(-2 * REM * seconds_per_tick, updating_stamina = FALSE))
 		return UPDATE_MOB_HEALTH
 
 /datum/reagent/consumable/ethanol/coggrog
@@ -544,7 +544,7 @@
 /datum/reagent/consumable/ethanol/jell_wyrm/on_mob_life(mob/living/carbon/affected_mob, seconds_per_tick, times_fired)
 	. = ..()
 	if(prob(20))
-		if(affected_mob.adjustToxLoss(0.5 * REM * seconds_per_tick, updating_health = FALSE))
+		if(affected_mob.adjust_tox_loss(0.5 * REM * seconds_per_tick, updating_health = FALSE, required_biotype = affected_biotype))
 			return UPDATE_MOB_HEALTH
 
 #define JELLWYRM_DISGUST 25
@@ -647,7 +647,7 @@
 /datum/reagent/consumable/ethanol/bloodshot/on_mob_life(mob/living/carbon/drinker, seconds_per_tick, times_fired)
 	. = ..()
 	if(drinker.blood_volume < drinker.blood_volume_normal)
-		drinker.blood_volume = max(drinker.blood_volume, min(drinker.blood_volume + (3 * REM * seconds_per_tick), BLOOD_VOLUME_NORMAL)) //Bloodshot quickly restores blood loss.
+		drinker.blood_volume = max(drinker.blood_volume, min(drinker.blood_volume + (2 * REM * seconds_per_tick), BLOOD_VOLUME_NORMAL)) //Bloodshot quickly restores blood loss.
 
 /datum/reagent/consumable/ethanol/blizzard_brew
 	name = "Blizzard Brew"
@@ -657,8 +657,6 @@
 	metabolization_rate = 1.25 * REAGENTS_METABOLISM
 	taste_description = "ancient icicles"
 	overdose_threshold = 25
-	var/obj/structure/ice_stasis/cube
-	var/atom/movable/screen/alert/status_effect/freon/cryostylane_alert
 
 /datum/glass_style/drinking_glass/blizzard_brew
 	required_drink_type = /datum/reagent/consumable/ethanol/blizzard_brew
@@ -676,17 +674,17 @@
 
 /datum/reagent/consumable/ethanol/blizzard_brew/overdose_start(mob/living/carbon/drinker)
 	. = ..()
-	cube = new /obj/structure/ice_stasis(get_turf(drinker))
-	cube.color = COLOR_CYAN
-	cube.set_anchored(TRUE)
-	drinker.forceMove(cube)
-	cryostylane_alert = drinker.throw_alert("cryostylane_alert", /atom/movable/screen/alert/status_effect/freon/cryostylane)
-	cryostylane_alert.attached_effect = src //so the alert can reference us, if it needs to
+	drinker.apply_status_effect(/datum/status_effect/frozenstasis/irresistable)
 
-/datum/reagent/consumable/ethanol/blizzard_brew/on_mob_delete(mob/living/carbon/drinker, amount)
-	QDEL_NULL(cube)
-	drinker.clear_alert("cryostylane_alert")
+/datum/reagent/consumable/ethanol/blizzard_brew/on_mob_delete(mob/living/carbon/drinker)
+	drinker.remove_status_effect(/datum/status_effect/frozenstasis/irresistable)
 	return ..()
+
+/datum/reagent/consumable/ethanol/blizzard_brew/overdose_process(mob/living/affected_mob, seconds_per_tick, times_fired)
+	. = ..()
+	if(!affected_mob.has_status_effect(/datum/status_effect/frozenstasis/irresistable))
+		holder.remove_reagent(type, volume) // remove it all if we were broken out
+		return
 
 /datum/reagent/consumable/ethanol/molten_mead
 	name = "Molten Mead"
@@ -748,7 +746,7 @@
 		affected_mob.remove_status_effect(effect)
 	affected_mob.reagents.remove_reagent(/datum/reagent/consumable/ethanol, 3 * REM * seconds_per_tick, include_subtypes = TRUE)
 	. = ..()
-	if(affected_mob.adjustToxLoss(-0.2 * REM * seconds_per_tick, updating_health = FALSE, required_biotype = affected_biotype))
+	if(affected_mob.adjust_tox_loss(-0.2 * REM * seconds_per_tick, updating_health = FALSE, required_biotype = affected_biotype))
 		. = UPDATE_MOB_HEALTH
 	affected_mob.adjust_drunk_effect(-10 * REM * seconds_per_tick)
 
@@ -842,7 +840,7 @@
 
 /datum/reagent/consumable/ethanol/cringe_weaver/on_mob_life(mob/living/carbon/drinker, seconds_per_tick, times_fired)
 	. = ..()
-	var/obj/item/organ/internal/liver/liver = drinker.get_organ_slot(ORGAN_SLOT_LIVER)
+	var/obj/item/organ/liver/liver = drinker.get_organ_slot(ORGAN_SLOT_LIVER)
 	if(liver && HAS_TRAIT(liver, TRAIT_CORONER_METABOLISM))
 		if(drinker.heal_bodypart_damage(1 * REM * seconds_per_tick, 1 * REM * seconds_per_tick)) //coroners love drinking formaldehyde
 			return UPDATE_MOB_HEALTH

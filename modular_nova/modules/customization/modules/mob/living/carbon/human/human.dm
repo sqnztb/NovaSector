@@ -16,7 +16,7 @@
 						continue
 					if(G.is_hidden(src))
 						continue
-					var/obj/item/organ/external/genital/ORG = get_organ_slot(G.associated_organ_slot)
+					var/obj/item/organ/genital/ORG = get_organ_slot(G.associated_organ_slot)
 					if(!ORG)
 						continue
 					line += ORG.get_description_string(G)
@@ -71,6 +71,15 @@
 
 /mob/living/carbon/human/species/skrell
 	race = /datum/species/skrell
+
+/mob/living/carbon/human/species/abductorweak
+	race = /datum/species/abductor/abductorweak
+
+/mob/living/carbon/human/species/golem/weak
+	race = /datum/species/golem/weak
+
+/mob/living/carbon/human/species/monkey/kobold
+	race = /datum/species/monkey/kobold
 
 /mob/living/carbon/human/verb/toggle_undies()
 	set category = "IC"
@@ -136,7 +145,7 @@
 	// The total list of parts choosable
 	var/static/list/total_selection = list(
 		ORGAN_SLOT_EXTERNAL_HORNS = "horns",
-		ORGAN_SLOT_EXTERNAL_EARS = "ears",
+		ORGAN_SLOT_EARS = "ears",
 		ORGAN_SLOT_EXTERNAL_WINGS = "wings",
 		ORGAN_SLOT_EXTERNAL_TAIL = "tail",
 		ORGAN_SLOT_EXTERNAL_SYNTH_ANTENNA = "ipc_antenna",
@@ -151,12 +160,13 @@
 		return
 
 	// Only show the 'reveal all' button if we are already hiding something
-	if(try_hide_mutant_parts)
-		LAZYOR(available_selection, "reveal all")
+	available_selection = list()
+	if(LAZYLEN(try_hide_mutant_parts))
+		available_selection["reveal all"] = TRUE
 	// Lets build our parts list
-	for(var/organ_slot in total_selection)
+	for(var/organ_slot, feature_string in total_selection)
 		if(get_organ_slot(organ_slot))
-			LAZYOR(available_selection, total_selection[organ_slot])
+			available_selection[feature_string] = TRUE
 
 	// If this proc is called with the 'quick_toggle' flag, we skip the rest
 	if(quick_toggle)
@@ -164,8 +174,8 @@
 			LAZYNULL(try_hide_mutant_parts)
 		else
 			for(var/part in available_selection)
-				LAZYOR(try_hide_mutant_parts, part)
-		update_mutant_bodyparts()
+				LAZYSET(try_hide_mutant_parts, part,  TRUE)
+		update_body_parts()
 		return
 
 	// Dont open the radial automatically just for one button
@@ -174,19 +184,40 @@
 	// If 'reveal all' is our only option just do it
 	if(!re_do && (("reveal all" in available_selection) && (length(available_selection) == 1)))
 		LAZYNULL(try_hide_mutant_parts)
-		update_mutant_bodyparts()
+		update_body_parts()
 		return
 
 	// Radial rendering
-	var/list/choices = list()
-	for(var/choice in available_selection)
-		var/datum/radial_menu_choice/option = new
-		var/image/part_image = image(icon = HIDING_RADIAL_DMI, icon_state = choice)
+	// Shared static caches so we never re-create objects
+	var/static/list/choice_icon_cache = list()
+	var/static/mutable_appearance/unusable_overlay = mutable_appearance(
+		icon = HIDING_RADIAL_DMI,
+		icon_state = "module_unable",
+	)
 
-		option.image = part_image
+	// Radial rendering
+	var/list/choices = list()
+
+	for(var/choice in available_selection)
+		// Build appearance once per icon_state
+		if(isnull(choice_icon_cache[choice]))
+			choice_icon_cache[choice] = mutable_appearance(
+				icon = HIDING_RADIAL_DMI,
+				icon_state = choice,
+			)
+
+		// Reuse cached appearance
+		var/mutable_appearance/choice_icon_appearance = new (choice_icon_cache[choice])
+
+		var/datum/radial_menu_choice/option = new
+		option.image = choice_icon_appearance
+
+		// Add overlay if hidden
 		if(choice in try_hide_mutant_parts)
-			part_image.underlays += image(icon = HIDING_RADIAL_DMI, icon_state = "module_unable")
+			choice_icon_appearance.overlays += unusable_overlay
+
 		choices[choice] = option
+
 	// Radial choices
 	sort_list(choices)
 	var/pick = show_radial_menu(usr, src, choices, custom_check = FALSE, tooltips = TRUE)
@@ -197,19 +228,17 @@
 	if(pick == "reveal all")
 		to_chat(usr, span_notice("You are no longer trying to hide your mutant parts."))
 		LAZYNULL(try_hide_mutant_parts)
-		update_mutant_bodyparts()
+		update_body_parts()
 		return
 
-	else if(pick in try_hide_mutant_parts)
+	else if(try_hide_mutant_parts.Remove(pick))
 		to_chat(usr, span_notice("You are no longer trying to hide your [pick]."))
-		LAZYREMOVE(try_hide_mutant_parts, pick)
 	else
 		to_chat(usr, span_notice("You are now trying to hide your [pick]."))
-		LAZYOR(try_hide_mutant_parts, pick)
-	update_mutant_bodyparts()
+		LAZYSET(try_hide_mutant_parts, pick, TRUE)
+	update_body_parts()
 	// automatically re-do the menu after making a selection
 	mutant_part_visibility(re_do = TRUE)
-
 
 // Feign impairment verb
 #define DEFAULT_TIME 30

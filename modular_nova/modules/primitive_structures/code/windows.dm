@@ -5,9 +5,9 @@
 	icon_state = "green_glass"
 	flags_1 = NONE
 	obj_flags = parent_type::obj_flags | NO_DEBRIS_AFTER_DECONSTRUCTION
-	can_be_unanchored = FALSE
 	fulltile = TRUE
 	flags_1 = PREVENT_CLICK_UNDER_1
+	custom_materials = list(/datum/material/glass = SHEET_MATERIAL_AMOUNT * 2)
 
 /datum/crafting_recipe/green_glass_pane
 	name = "green glass window"

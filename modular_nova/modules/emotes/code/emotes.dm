@@ -23,6 +23,12 @@
 	return TRUE
 
 
+/datum/emote/living/nodnod
+	key = "nod2"
+	key_third_person = "nod2s"
+	message = "nods twice."
+	message_param = "nods twice at %t."
+
 /datum/emote/living/blush
 	sound = 'modular_nova/modules/emotes/sound/emotes/blush.ogg'
 
@@ -38,16 +44,9 @@
 
 
 /datum/emote/living/cough/get_sound(mob/living/user)
+	. = ..()
 	if(isvox(user))
 		return 'modular_nova/modules/emotes/sound/emotes/voxcough.ogg'
-	if(iscarbon(user))
-		if(user.gender == MALE)
-			return pick('modular_nova/modules/emotes/sound/emotes/male/male_cough_1.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/male_cough_2.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/male_cough_3.ogg')
-		return pick('modular_nova/modules/emotes/sound/emotes/female/female_cough_1.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/female_cough_2.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/female_cough_3.ogg')
 	return
 
 /datum/emote/living/cough
@@ -60,12 +59,9 @@
 	specific_emote_audio_cooldown = 5 SECONDS
 
 /datum/emote/living/sneeze/get_sound(mob/living/user)
+	. = ..()
 	if(isvox(user))
 		return 'modular_nova/modules/emotes/sound/emotes/voxsneeze.ogg'
-	if(iscarbon(user))
-		if(user.gender == MALE)
-			return 'modular_nova/modules/emotes/sound/emotes/male/male_sneeze.ogg'
-		return 'modular_nova/modules/emotes/sound/emotes/female/female_sneeze.ogg'
 	return
 
 /datum/emote/living/yawn
@@ -144,13 +140,9 @@
 	vary = TRUE
 	sound = 'modular_nova/modules/emotes/sound/voice/weh.ogg'
 
-/datum/emote/living/mothsqueak
+/datum/emote/living/carbon/msqueak
 	key = "msqueak"
-	key_third_person = "lets out a tiny squeak"
-	message = "lets out a tiny squeak!"
-	emote_type = EMOTE_AUDIBLE
 	vary = TRUE
-	sound = 'modular_nova/modules/emotes/sound/voice/mothsqueak.ogg'
 
 /datum/emote/living/mousesqueak
 	key = "squeak"
@@ -159,6 +151,37 @@
 	emote_type = EMOTE_AUDIBLE
 	vary = TRUE
 	sound = 'sound/mobs/non-humanoids/mouse/mousesqueek.ogg'
+
+/datum/emote/living/yip
+	key = "yip"
+	key_third_person = "yips"
+	message = "yips!"
+	emote_type = EMOTE_AUDIBLE
+	vary = TRUE
+	sound = 'modular_nova/modules/emotes/sound/voice/fox_squeak.ogg'
+
+/datum/emote/living/whine
+	key = "whine"
+	key_third_person = "whines"
+	message = "whines like a fox."
+	emote_type = EMOTE_AUDIBLE
+	vary = TRUE
+	mob_type_allowed_typecache = list(/mob/living/carbon, /mob/living/silicon/pai)
+
+/datum/emote/living/whine/get_sound(mob/living/user)
+	return pick('modular_nova/modules/emotes/sound/voice/fox1.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox2.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox3.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox4.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox5.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox6.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox7.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox8.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox9.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox10.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox11.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox12.ogg',
+				'modular_nova/modules/emotes/sound/voice/fox13.ogg')
 
 /datum/emote/living/merp
 	key = "merp"
@@ -207,17 +230,13 @@
 	else
 		return 'modular_nova/modules/emotes/sound/emotes/hiss.ogg'
 
-/datum/emote/living/chitter
-	key = "chitter"
-	key_third_person = "chitters"
-	message = "chitters!"
-	emote_type = EMOTE_AUDIBLE
+/datum/emote/living/carbon/mchitter
 	mob_type_allowed_typecache = list(/mob/living/carbon, /mob/living/silicon/pai)
 	vary = TRUE
 
-/datum/emote/living/chitter/get_sound(mob/living/user)
+/datum/emote/living/carbon/mchitter/get_sound(mob/living/user)
 	if(ismoth(user))
-		return 'modular_nova/modules/emotes/sound/emotes/mothchitter.ogg'
+		return 'sound/mobs/humanoids/moth/moth_chitter.ogg'
 	else
 		return 'sound/mobs/non-humanoids/insect/chitter.ogg'
 
@@ -228,39 +247,13 @@
 		return 'modular_nova/modules/emotes/sound/emotes/female/female_sigh.ogg'
 	return
 
-/datum/emote/living/sniff
-	vary = TRUE
-	muzzle_ignore = TRUE
-
-/datum/emote/living/sniff/get_sound(mob/living/user)
-	if(iscarbon(user))
-		if(user.gender == MALE)
-			return 'modular_nova/modules/emotes/sound/emotes/male/male_sniff.ogg'
-		return 'modular_nova/modules/emotes/sound/emotes/female/female_sniff.ogg'
-	return
-
 /datum/emote/living/gasp/get_sound(mob/living/user)
+	. = ..()
 	if(iscarbon(user))
 		if(isxenohybrid(user))
 			return pick('sound/mobs/non-humanoids/hiss/lowHiss2.ogg',
 						'sound/mobs/non-humanoids/hiss/lowHiss3.ogg',
-						'sound/mobs/non-humanoids/hiss/lowHiss4.ogg',
-					)
-		if(user.gender == MALE)
-			return pick('modular_nova/modules/emotes/sound/emotes/male/gasp_m1.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/gasp_m2.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/gasp_m3.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/gasp_m4.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/gasp_m5.ogg',
-						'modular_nova/modules/emotes/sound/emotes/male/gasp_m6.ogg',
-					)
-		return pick('modular_nova/modules/emotes/sound/emotes/female/gasp_f1.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/gasp_f2.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/gasp_f3.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/gasp_f4.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/gasp_f5.ogg',
-					'modular_nova/modules/emotes/sound/emotes/female/gasp_f6.ogg',
-				)
+						'sound/mobs/non-humanoids/hiss/lowHiss4.ogg')
 	return
 
 /datum/emote/living/snore
@@ -286,12 +279,13 @@
 	vary = TRUE
 	mob_type_allowed_typecache = list(/mob/living/carbon, /mob/living/silicon/pai)
 	specific_emote_audio_cooldown = 5 SECONDS
+	affected_by_pitch = FALSE
 
 /datum/emote/living/clap/get_sound(mob/living/user)
-	return pick('modular_nova/modules/emotes/sound/emotes/clap1.ogg',
-				'modular_nova/modules/emotes/sound/emotes/clap2.ogg',
-				'modular_nova/modules/emotes/sound/emotes/clap3.ogg',
-				'modular_nova/modules/emotes/sound/emotes/clap4.ogg')
+	return pick('sound/mobs/humanoids/human/clap/clap1.ogg',
+				'sound/mobs/humanoids/human/clap/clap2.ogg',
+				'sound/mobs/humanoids/human/clap/clap3.ogg',
+				'sound/mobs/humanoids/human/clap/clap4.ogg')
 
 /datum/emote/living/clap/can_run_emote(mob/living/carbon/user, status_check = TRUE, intentional, params)
 	if(user.usable_hands < 2)
@@ -306,6 +300,7 @@
 	hands_use_check = TRUE
 	vary = TRUE
 	mob_type_allowed_typecache = list(/mob/living/carbon, /mob/living/silicon/pai)
+	affected_by_pitch = FALSE
 
 /datum/emote/living/clap1/get_sound(mob/living/user)
 	return pick('modular_nova/modules/emotes/sound/emotes/claponce1.ogg',
@@ -600,6 +595,13 @@
 	key_third_person = "esighs"
 	message = "lets out an exasperated sigh."
 	emote_type = EMOTE_AUDIBLE
+
+/datum/emote/living/sigh_exasperated/run_emote(mob/living/user, params, type_override, intentional)
+	. = ..()
+	if(!ishuman(user))
+		return
+	var/image/emote_animation = image('icons/mob/human/emote_visuals.dmi', user, "sigh")
+	flick_overlay_global(emote_animation, GLOB.clients, 2.0 SECONDS)
 
 /datum/emote/living/sigh_exasperated/get_sound(mob/living/user)
 	if(iscarbon(user))

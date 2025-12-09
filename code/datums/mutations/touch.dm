@@ -1,6 +1,6 @@
-/datum/mutation/human/shock
+/datum/mutation/shock
 	name = "Shock Touch"
-	desc = "The affected can channel excess electricity through their hands without shocking themselves, allowing them to shock others."
+	desc = "The affected can channel excess electricity through their hands without shocking themselves, allowing them to shock others. Mostly harmless! Mostly... "
 	quality = POSITIVE
 	locked = TRUE
 	difficulty = 16
@@ -11,7 +11,7 @@
 	energy_coeff = 1
 	power_coeff = 1
 
-/datum/mutation/human/shock/modify()
+/datum/mutation/shock/setup()
 	. = ..()
 	var/datum/action/cooldown/spell/touch/shock/to_modify =.
 
@@ -19,30 +19,23 @@
 		return
 
 	if(GET_MUTATION_POWER(src) <= 1)
-		to_modify.chain = initial(to_modify.chain)
+		to_modify.stagger = initial(to_modify.stagger)
 		return
 
-	to_modify.chain = TRUE
+	to_modify.stagger = TRUE
 
 /datum/action/cooldown/spell/touch/shock
 	name = "Shock Touch"
-	desc = "Channel electricity to your hand to shock people with."
+	desc = "Channel electricity to your hand to shock people with. Mostly harmless! Mostly... "
 	button_icon_state = "zap"
 	sound = 'sound/items/weapons/zapbang.ogg'
-	cooldown_time = 12 SECONDS
+	cooldown_time = 7 SECONDS
 	invocation_type = INVOCATION_NONE
 	spell_requirements = NONE
 	antimagic_flags = NONE
 
-	//Vars for zaps made when power chromosome is applied, ripped and toned down from reactive tesla armor code.
-	///This var decides if the spell should chain, dictated by presence of power chromosome
-	var/chain = FALSE
-	///Affects damage, should do about 1 per limb
-	var/zap_power = 7.5 KILO JOULES
-	///Range of tesla shock bounces
-	var/zap_range = 7
-	///flags that dictate what the tesla shock can interact with, Can only damage mobs, Cannot damage machines or generate energy
-	var/zap_flags = ZAP_MOB_DAMAGE
+	///This var decides if the spell should stagger, dictated by presence of power chromosome
+	var/stagger = FALSE
 
 	hand_path = /obj/item/melee/touch_attack/shock
 	draw_message = span_notice("You channel electricity into your hand.")
@@ -51,7 +44,12 @@
 /datum/action/cooldown/spell/touch/shock/cast_on_hand_hit(obj/item/melee/touch_attack/hand, atom/victim, mob/living/carbon/caster)
 	if(iscarbon(victim))
 		var/mob/living/carbon/carbon_victim = victim
-		if(carbon_victim.electrocute_act(15, caster, 1, SHOCK_NOGLOVES | SHOCK_NOSTUN))//doesn't stun. never let this stun
+		if(carbon_victim.electrocute_act(5, caster, 1, SHOCK_NOGLOVES | SHOCK_NOSTUN))//doesn't stun. never let this stun
+
+			var/obj/item/bodypart/affecting = carbon_victim.get_bodypart(carbon_victim.get_random_valid_zone(caster.zone_selected))
+			var/armor_block = carbon_victim.run_armor_check(affecting, ENERGY)
+			carbon_victim.apply_damage(20, STAMINA, def_zone = affecting, blocked = armor_block)
+
 			carbon_victim.dropItemToGround(carbon_victim.get_active_held_item())
 			carbon_victim.dropItemToGround(carbon_victim.get_inactive_held_item())
 			carbon_victim.adjust_confusion(15 SECONDS)
@@ -59,21 +57,19 @@
 				span_danger("[caster] electrocutes [victim]!"),
 				span_userdanger("[caster] electrocutes you!"),
 			)
-			if(chain)
-				tesla_zap(source = victim, zap_range = zap_range, power = zap_power, cutoff = 1 KILO JOULES, zap_flags = zap_flags)
-				carbon_victim.visible_message(span_danger("An arc of electricity explodes out of [victim]!"))
+			if(stagger)
+				carbon_victim.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH * 2, 10 SECONDS)
 			return TRUE
 
 	else if(isliving(victim))
 		var/mob/living/living_victim = victim
-		if(living_victim.electrocute_act(15, caster, 1, SHOCK_NOSTUN))
+		if(living_victim.electrocute_act(15, caster, 1, SHOCK_NOSTUN)) //We do damage here because non-carbon mobs typically ignore stamina damage.
 			living_victim.visible_message(
 				span_danger("[caster] electrocutes [victim]!"),
 				span_userdanger("[caster] electrocutes you!"),
 			)
-			if(chain)
-				tesla_zap(source = victim, zap_range = zap_range, power = zap_power, cutoff = 1 KILO JOULES, zap_flags = zap_flags)
-				living_victim.visible_message(span_danger("An arc of electricity explodes out of [victim]!"))
+			if(stagger)
+				living_victim.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH * 2, 10 SECONDS)
 			return TRUE
 
 	to_chat(caster, span_warning("The electricity doesn't seem to affect [victim]..."))
@@ -86,7 +82,7 @@
 	icon_state = "zapper"
 	inhand_icon_state = "zapper"
 
-/datum/mutation/human/lay_on_hands
+/datum/mutation/lay_on_hands
 	name = "Mending Touch"
 	desc = "The affected can lay their hands on other people to transfer a small amount of their injuries to themselves."
 	quality = POSITIVE
@@ -100,7 +96,7 @@
 	power_coeff = 1
 	synchronizer_coeff = 1
 
-/datum/mutation/human/lay_on_hands/modify()
+/datum/mutation/lay_on_hands/setup()
 	. = ..()
 	var/datum/action/cooldown/spell/touch/lay_on_hands/to_modify =.
 
@@ -114,7 +110,8 @@
 
 /datum/action/cooldown/spell/touch/lay_on_hands
 	name = "Mending Touch"
-	desc = "You can now lay your hands on other people to transfer a small amount of their physical injuries to yourself."
+	desc = "You can now lay your hands on other people to transfer a small amount of their physical injuries to yourself. \
+		For some reason, this power does not play nicely with the undead, or people with strange ideas about morality."
 	button_icon = 'icons/mob/actions/actions_genetic.dmi'
 	button_icon_state = "mending_touch"
 	sound = 'sound/effects/magic/staff_healing.ogg'
@@ -159,6 +156,17 @@
 	// Message to show on a successful heal if the healer has a special pacifism interaction with the mutation.
 	var/peaceful_message = null
 
+	var/success
+
+	var/hurt_this_guy = determine_if_this_hurts_instead(mendicant, hurtguy)
+
+	if (hurt_this_guy && (HAS_TRAIT(mendicant, TRAIT_PACIFISM) || !mendicant.combat_mode)) //Returns if we're a pacifist and we'd hurt them, or we're not in combat mode and we'll hurt them
+		mendicant.balloon_alert(mendicant, "[hurtguy] would be hurt!")
+		return FALSE
+
+	if(hurt_this_guy)
+		return by_gods_light_i_smite_you(mendicant, hurtguy, heal_multiplier)
+
 	// Heal more, hurt a bit more.
 	// If you crunch the numbers it sounds crazy good,
 	// but I think that's a fair reward for combining the efforts of Genetics, Medbay, and Mining to reach a hidden mechanic.
@@ -177,7 +185,6 @@
 		heal_multiplier *= 1.75
 		peaceful_message = span_boldnotice("Your peaceful nature helps you guide all the pain to yourself.")
 
-	var/success
 	if(iscarbon(hurtguy))
 		success = do_complicated_heal(mendicant, hurtguy, heal_multiplier, pain_multiplier)
 	else
@@ -213,9 +220,9 @@
 	. = FALSE
 
 	// Damage to heal
-	var/brute_to_heal = min(hurtguy.getBruteLoss(), 35 * heal_multiplier)
+	var/brute_to_heal = min(hurtguy.get_brute_loss(), 35 * heal_multiplier)
 	// no double dipping
-	var/burn_to_heal = min(hurtguy.getFireLoss(), (35 - brute_to_heal) * heal_multiplier)
+	var/burn_to_heal = min(hurtguy.get_fire_loss(), (35 - brute_to_heal) * heal_multiplier)
 
 	// Get at least organic limb to transfer the damage to
 	var/list/mendicant_organic_limbs = list()
@@ -234,11 +241,11 @@
 		mendicant_transfer_limb.receive_damage(brute_to_heal * pain_multiplier, burn_to_heal * pain_multiplier, forced = TRUE, wound_bonus = CANT_WOUND)
 
 	if(brute_to_heal)
-		hurtguy.adjustBruteLoss(-brute_to_heal)
+		hurtguy.adjust_brute_loss(-brute_to_heal)
 		. = TRUE
 
 	if(burn_to_heal)
-		hurtguy.adjustFireLoss(-burn_to_heal)
+		hurtguy.adjust_fire_loss(-burn_to_heal)
 		. = TRUE
 
 	if(!.)
@@ -299,44 +306,114 @@
 			iter_wound.remove_wound()
 			iter_wound.apply_wound(mendicant_transfer_limb)
 
-	if(HAS_TRAIT(mendicant, TRAIT_NOBLOOD))
+	if(!CAN_HAVE_BLOOD(mendicant) || !CAN_HAVE_BLOOD(hurtguy))
 		return .
 
 	// 10% base
 	var/max_blood_transfer = (BLOOD_VOLUME_NORMAL * 0.10) * heal_multiplier
 	// Too little blood
-	if(hurtguy.blood_volume < BLOOD_VOLUME_NORMAL)
-		var/max_blood_to_hurtguy = min(mendicant.blood_volume, BLOOD_VOLUME_NORMAL - hurtguy.blood_volume)
-		var/blood_to_hurtguy = min(max_blood_transfer, max_blood_to_hurtguy)
-		if(!blood_to_hurtguy)
-			return .
+	if(hurtguy.get_blood_volume() < BLOOD_VOLUME_NORMAL)
 		// We ignore incompatibility here.
-		mendicant.transfer_blood_to(hurtguy, blood_to_hurtguy, forced = TRUE, ignore_incompatibility = TRUE)
+		var/blood_transferred = mendicant.transfer_blood_to(hurtguy, max_blood_transfer, ignore_low_blood = TRUE, ignore_incompatibility = TRUE)
+
+		if(!blood_transferred)
+			return
+
 		to_chat(mendicant, span_notice("Your veins (and brain) feel a bit lighter."))
 		. = TRUE
 		// Because we do our own spin on it!
 		if(hurtguy.get_blood_compatibility(mendicant) == FALSE)
-			hurtguy.adjustToxLoss((blood_to_hurtguy * 0.1) * pain_multiplier) // 1 dmg per 10 blood
+			hurtguy.adjust_tox_loss((blood_transferred * 0.1) * pain_multiplier) // 1 dmg per 10 blood
 			to_chat(hurtguy, span_notice("Your veins feel thicker, but they itch a bit."))
 		else
 			to_chat(hurtguy, span_notice("Your veins feel thicker!"))
+		return
 
-	// Too MUCH blood
-	if(hurtguy.blood_volume > BLOOD_VOLUME_MAXIMUM)
-		var/max_blood_to_mendicant = BLOOD_VOLUME_EXCESS - hurtguy.blood_volume
-		var/blood_to_mendicant = min(max_blood_transfer, max_blood_to_mendicant)
-		// mender always gonna have blood
+	if(hurtguy.get_blood_volume() < BLOOD_VOLUME_EXCESS)
+		return
 
-		// We ignore incompatibility here.
-		hurtguy.transfer_blood_to(mendicant, hurtguy.blood_volume - BLOOD_VOLUME_EXCESS, forced = TRUE, ignore_incompatibility = TRUE)
-		to_chat(hurtguy, span_notice("Your veins don't feel quite so swollen anymore."))
-		. = TRUE
-		// Because we do our own spin on it!
-		if(mendicant.get_blood_compatibility(hurtguy) == FALSE)
-			mendicant.adjustToxLoss((blood_to_mendicant * 0.1) * pain_multiplier) // 1 dmg per 10 blood
-			to_chat(mendicant, span_notice("Your veins swell and itch!"))
-		else
-			to_chat(mendicant, span_notice("Your veins swell!"))
+	// We ignore incompatibility here.
+	var/blood_received = hurtguy.transfer_blood_to(mendicant, hurtguy.get_blood_volume() - BLOOD_VOLUME_EXCESS, ignore_incompatibility = TRUE)
+
+	if(!blood_received)
+		return
+
+	to_chat(hurtguy, span_notice("Your veins don't feel quite so swollen anymore."))
+	. = TRUE
+	// Because we do our own spin on it!
+	if(mendicant.get_blood_compatibility(hurtguy) == FALSE)
+		mendicant.adjust_tox_loss((blood_received * 0.1) * pain_multiplier) // 1 dmg per 10 blood
+		to_chat(mendicant, span_notice("Your veins swell and itch!"))
+	else
+		to_chat(mendicant, span_notice("Your veins swell!"))
+
+
+/datum/action/cooldown/spell/touch/lay_on_hands/proc/determine_if_this_hurts_instead(mob/living/carbon/mendicant, mob/living/hurtguy)
+
+	var/hurtguy_smiteable = SEND_SIGNAL(hurtguy, COMSIG_ON_LAY_ON_HANDS, mendicant)
+
+	if(hurtguy.mob_biotypes & MOB_UNDEAD && mendicant.mob_biotypes & MOB_UNDEAD)
+		return FALSE //always return false if we're both undead //undead solidarity
+
+	if(hurtguy.mob_biotypes & MOB_UNDEAD && !HAS_TRAIT(mendicant, TRAIT_EVIL)) //Is the mob undead and we're not evil? If so, hurt.
+		return TRUE
+
+	if(HAS_TRAIT(hurtguy, TRAIT_EVIL) && !HAS_TRAIT(mendicant, TRAIT_EVIL)) //Is the guy evil and we're not evil? If so, hurt.
+		return TRUE
+
+	if(hurtguy_smiteable) //Is some other property of the target (like the empath component) causing them to be smited? If so, hurt.
+		return TRUE
+	return (FALSE)
+
+///If our target was undead or evil, we blast them with a firey beam rather than healing them. For, you know, 'holy' reasons. When did genes become so morally uptight?
+
+/datum/action/cooldown/spell/touch/lay_on_hands/proc/by_gods_light_i_smite_you(mob/living/carbon/smiter, mob/living/motherfucker_to_hurt, smite_multiplier)
+	var/our_smite_multiplier = smite_multiplier
+	var/evil_smite = HAS_TRAIT(smiter, TRAIT_EVIL) ? TRUE : FALSE
+	var/divine_champion = smiter.mind?.holy_role >= HOLY_ROLE_PRIEST ? TRUE : FALSE
+	var/smite_text_to_target = "lays hands on you"
+
+	if(divine_champion || HAS_TRAIT(smiter, TRAIT_SPIRITUAL))
+
+		// Defaults for possible deity. You know, just in case.
+		var/possible_deity = evil_smite ? "Satan" : "God"
+
+		var/mob/living/carbon/human/human_smiter = smiter
+
+		// If we have a client, check their deity pref and use that instead of our chaps god if our smiter is a spiritualist
+		var/client/smiter_client = smiter.client
+
+		if(smiter_client && HAS_TRAIT(smiter, TRAIT_SPIRITUAL))
+			possible_deity = smiter_client.prefs?.read_preference(/datum/preference/name/deity)
+		else if (GLOB.deity)
+			possible_deity = GLOB.deity
+
+		if(ishuman(human_smiter))
+			human_smiter.force_say()
+			if(evil_smite)
+				human_smiter.say("in [possible_deity]'s dark name, I COMMAND YOU TO PERISH!!!", forced = "compelled by the power of their deity")
+			else
+				human_smiter.say("By [possible_deity]'s might, I SMITE YOU!!!", forced = "compelled by the power of their deity")
+		our_smite_multiplier *= divine_champion ? 5 : 1 //good luck surviving this if they're a chap
+
+	if(evil_smite)
+		motherfucker_to_hurt.visible_message(span_warning("[smiter] snaps [smiter.p_their()] fingers in front of [motherfucker_to_hurt]'s face, and [motherfucker_to_hurt]'s body twists violently from an unseen force!"))
+		motherfucker_to_hurt.apply_damage(10 * our_smite_multiplier, BRUTE, spread_damage = TRUE, wound_bonus = 5 * our_smite_multiplier)
+		motherfucker_to_hurt.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH * our_smite_multiplier, 25 SECONDS)
+		smiter.emote("snap")
+		smite_text_to_target = "crushes you psychically with a snap of [smiter.p_their()] fingers"
+	else
+		motherfucker_to_hurt.visible_message(span_warning("[smiter] lays hands on [motherfucker_to_hurt], but it shears [motherfucker_to_hurt.p_them()] with a brilliant energy!"))
+		motherfucker_to_hurt.apply_damage(10 * our_smite_multiplier, BURN, spread_damage = TRUE, wound_bonus = 5 * our_smite_multiplier)
+		motherfucker_to_hurt.adjust_fire_stacks(3 * our_smite_multiplier)
+		motherfucker_to_hurt.ignite_mob()
+
+	motherfucker_to_hurt.update_damage_overlays()
+
+	to_chat(motherfucker_to_hurt, span_bolddanger("[smiter] [smite_text_to_target], hurting you!"))
+	motherfucker_to_hurt.emote("scream")
+	new /obj/effect/temp_visual/explosion(get_turf(motherfucker_to_hurt), evil_smite ? LIGHT_COLOR_BLOOD_MAGIC : LIGHT_COLOR_HOLY_MAGIC)
+	. = TRUE
 
 /obj/item/melee/touch_attack/lay_on_hands
 	name = "mending touch"
@@ -345,3 +422,4 @@
 	icon_state = "greyscale"
 	color = COLOR_VERY_PALE_LIME_GREEN
 	inhand_icon_state = "greyscale"
+	item_flags = parent_type::item_flags & ~NEEDS_PERMIT

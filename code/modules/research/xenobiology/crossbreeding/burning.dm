@@ -100,7 +100,7 @@ Burning extracts:
 			if(istype(C))
 				C.electrocute_act(25,src)
 			else
-				M.adjustFireLoss(25)
+				M.adjust_fire_loss(25)
 			to_chat(M, span_danger("You feel a sharp electrical pulse!"))
 	..()
 
@@ -211,9 +211,6 @@ Burning extracts:
 	effect_desc = "The user gets a dull arm blade in the hand it is used in."
 
 /obj/item/slimecross/burning/green/do_effect(mob/user)
-	var/which_hand = "l_hand"
-	if(!(user.active_hand_index % 2))
-		which_hand = "r_hand"
 	var/mob/living/L = user
 	if(!istype(user))
 		return
@@ -226,7 +223,7 @@ Burning extracts:
 	else
 		user.visible_message(span_danger("[src] sublimates the flesh around [user]'s arm, transforming the bone into a gruesome blade!"))
 	user.emote("scream")
-	L.apply_damage(30,BURN,which_hand)
+	L.apply_damage(30, BURN, L.get_active_hand())
 	..()
 
 /obj/item/slimecross/burning/pink

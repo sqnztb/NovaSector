@@ -1,22 +1,16 @@
 /atom
 	/// If non-null, overrides a/an/some in all cases
 	var/article
-	/// Text that appears preceding the name in examine()
+	/// Text that appears preceding the name in [/atom/proc/examine_title]
 	var/examine_thats = "That's"
 
-/mob/living/carbon/human
-	examine_thats = "This is"
-
-/mob/living/silicon/robot
-	examine_thats = "This is"
-
 /**
- * Called when a mob examines (shift click or verb) this atom
+ * Called when a mob examines this atom: [/mob/verb/examinate]
  *
  * Default behaviour is to get the name and icon of the object and its reagents where
  * the [TRANSPARENT] flag is set on the reagents holder
  *
- * Produces a signal [COMSIG_ATOM_EXAMINE]
+ * Produces a signal [COMSIG_ATOM_EXAMINE], for modifying the list returned from this proc
  */
 /atom/proc/examine(mob/user)
 	. = list()
@@ -25,14 +19,17 @@
 		. += "<i>[desc]</i>"
 
 	var/list/tags_list = examine_tags(user)
+	var/list/post_descriptor = examine_post_descriptor(user)
+	var/post_desc_string = length(post_descriptor) ? " [jointext(post_descriptor, " ")]" : ""
 	if (length(tags_list))
 		var/tag_string = list()
 		for (var/atom_tag in tags_list)
 			tag_string += (isnull(tags_list[atom_tag]) ? atom_tag : span_tooltip(tags_list[atom_tag], atom_tag))
-		// Weird bit but ensures that if the final element has its own "and" we don't add another one
-		tag_string = english_list(tag_string, and_text = (findtext(tag_string[length(tag_string)], " and ")) ? ", " : " and ")
-		var/post_descriptor = examine_post_descriptor(user)
-		. += "[p_They()] [p_are()] a [tag_string] [examine_descriptor(user)][length(post_descriptor) ? " [jointext(post_descriptor, " ")]" : ""]."
+		// some regex to ensure that we don't add another "and" if the final element's main text (not tooltip) has one
+		tag_string = english_list(tag_string, and_text = (findtext(tag_string[length(tag_string)], regex(@">.*?and .*?<"))) ? " " : " and ")
+		. += "[p_They()] [p_are()] a [tag_string] [examine_descriptor(user)][post_desc_string]."
+	else if(post_desc_string)
+		. += "[p_They()] [p_are()] a [examine_descriptor(user)][post_desc_string]."
 
 	if(reagents)
 		var/user_sees_reagents = user.can_see_reagents()
@@ -58,17 +55,52 @@
 
 	SEND_SIGNAL(src, COMSIG_ATOM_EXAMINE, user, .)
 
-/*
+/**
  * A list of "tags" displayed after atom's description in examine.
- * This should return an assoc list of tags -> tooltips for them. If item if null, then no tooltip is assigned.
+ * This should return an assoc list of tags -> tooltips for them. If item is null, then no tooltip is assigned.
+ *
+ * * TGUI tooltips (not the main text) in chat cannot use HTML stuff at all, so
+ * trying something like `<b><big>ffff</big></b>` will not work for tooltips.
+ *
  * For example:
- * list("small" = "This is a small size class item.", "fireproof" = "This item is impervious to fire.")
+ * ```byond
+ * . = list()
+ * .["small"] = "It is a small item."
+ * .["fireproof"] = "It is made of fire-retardant materials."
+ * .["and conductive"] = "It's made of conductive materials and whatnot. Blah blah blah." // having "and " in the end tag's main text/key works too!
+ * ```
  * will result in
- * This is a small, fireproof item.
- * where "item" is pulled from examine_descriptor() proc
+ *
+ * It is a *small*, *fireproof* *and conductive* item.
+ *
+ * where "item" is pulled from [/atom/proc/examine_descriptor]
  */
 /atom/proc/examine_tags(mob/user)
 	. = list()
+	if(abstract_type == type)
+		.[span_hypnophrase("abstract")] = "This is an abstract concept, you should report this to a strange entity called GITHUB!"
+
+	if(resistance_flags & INDESTRUCTIBLE)
+		.["indestructible"] = "It is extremely robust! It'll probably withstand anything that could happen to it!"
+	else
+		if(resistance_flags & LAVA_PROOF)
+			.["lava-proof"] = "It is made of an extremely heat-resistant material, it'd probably be able to withstand lava!"
+		if(resistance_flags & (ACID_PROOF | UNACIDABLE))
+			.["acid-proof"] = "It looks pretty robust! It'd probably be able to withstand acid!"
+		if(resistance_flags & FREEZE_PROOF)
+			.["freeze-proof"] = "It is made of cold-resistant materials."
+		if(resistance_flags & FIRE_PROOF)
+			.["fire-proof"] = "It is made of fire-retardant materials."
+		if(resistance_flags & SHUTTLE_CRUSH_PROOF)
+			.["crush-proof"] = "It is extremely solid. It should be able to withstand being run over by a shuttle!"
+		if(resistance_flags & BOMB_PROOF)
+			.["bomb-proof"] = "It looks like it could survive an explosion!"
+		if(resistance_flags & FLAMMABLE)
+			.["flammable"] = "It looks like it could easily catch on fire."
+
+	if(flags_1 & HOLOGRAM_1)
+		.["holographic"] = "It looks like a hologram."
+
 	SEND_SIGNAL(src, COMSIG_ATOM_EXAMINE_TAGS, user, .)
 
 /// What this atom should be called in examine tags
@@ -121,7 +153,11 @@
 	return "\a [src]"
 
 /mob/living/get_examine_name(mob/user)
-	return get_visible_name()
+	var/visible_name = get_visible_name()
+	var/list/name_override = list(visible_name)
+	if(SEND_SIGNAL(user, COMSIG_LIVING_PERCEIVE_EXAMINE_NAME, src, visible_name, name_override) & COMPONENT_EXAMINE_NAME_OVERRIDEN)
+		return name_override[1]
+	return visible_name
 
 /// Icon displayed in examine
 /atom/proc/get_examine_icon(mob/user)
@@ -150,7 +186,12 @@
 /atom/proc/get_name_chaser(mob/user, list/name_chaser = list())
 	return name_chaser
 
-/// Used by mobs to determine the name for someone wearing a mask, or with a disfigured or missing face. By default just returns the atom's name. add_id_name will control whether or not we append "(as [id_name])".
-/// force_real_name will always return real_name and add (as face_name/id_name) if it doesn't match their appearance
-/atom/proc/get_visible_name(add_id_name, force_real_name)
+/**
+ * Used by mobs to determine the name for someone wearing a mask, or with a disfigured or missing face.
+ * By default just returns the atom's name.
+ *
+ * * add_id_name - If TRUE, ID information such as honorifics or name (if mismatched) are appended
+ * * force_real_name - If TRUE, will always return real_name and add (as face_name/id_name) if it doesn't match their appearance
+ */
+/atom/proc/get_visible_name(add_id_name = TRUE, force_real_name = FALSE)
 	return name

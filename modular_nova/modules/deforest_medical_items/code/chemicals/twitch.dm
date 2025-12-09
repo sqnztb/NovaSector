@@ -22,10 +22,9 @@
 // Twitch drug, makes the takers of it faster and able to dodge bullets while in their system, to potentially bad side effects
 /datum/reagent/drug/twitch
 	name = "TWitch"
-	description = "A drug originally developed by and for plutonians to assist them during raids. \
-		Does not see wide use due to the whole reality-disassociation and heart disease thing afterwards. \
-		Can be intentionally overdosed to increase the drug's effects"
-	reagent_state = LIQUID
+	description = "A drug originally developed by and for Plutonians to assist them during raids. \
+		Does not see wide use, due to the whole reality-disassociation and acute heart disease thing afterwards. \
+		Can be intentionally overdosed to increase the drug's effects."
 	color = "#c22a44"
 	taste_description = "television static"
 	metabolization_rate = 0.65 * REAGENTS_METABOLISM
@@ -33,7 +32,7 @@
 	overdose_threshold = 15
 	chemical_flags = REAGENT_CAN_BE_SYNTHESIZED
 	addiction_types = list(/datum/addiction/stimulants = 20)
-	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
+	process_flags = REAGENT_ORGANIC
 	/// How much time has the drug been in them?
 	var/constant_dose_time = 0
 	/// What type of span class do we change heard speech to?
@@ -54,6 +53,10 @@
 
 	RegisterSignal(our_guy, COMSIG_MOVABLE_MOVED, PROC_REF(on_movement))
 	RegisterSignal(our_guy, COMSIG_MOVABLE_HEAR, PROC_REF(distort_hearing))
+	if(!HAS_TRAIT(our_guy, TRAIT_RELAYING_ATTACKER))
+		our_guy.AddElement(/datum/element/relay_attackers)
+	RegisterSignal(our_guy, COMSIG_ATOM_WAS_ATTACKED, PROC_REF(on_attacked))
+	RegisterSignal(our_guy, COMSIG_ATOM_PREHITBY, PROC_REF(on_hitby))
 
 	if(!our_guy.hud_used)
 		return
@@ -86,6 +89,9 @@
 	UnregisterSignal(our_guy, COMSIG_MOVABLE_HEAR)
 	if(overdosed)
 		UnregisterSignal(our_guy, COMSIG_ATOM_PRE_BULLET_ACT)
+	UnregisterSignal(our_guy, COMSIG_ATOM_WAS_ATTACKED)
+	UnregisterSignal(our_guy, COMSIG_ATOM_PREHITBY)
+	our_guy.RemoveElement(/datum/element/relay_attackers)
 
 	if(constant_dose_time < CONSTANT_DOSE_SAFE_LIMIT) // Anything less than this and you'll come out fiiiine, aside from a big hit of stamina damage
 		if(!(our_guy.mob_biotypes & MOB_ROBOTIC))
@@ -98,7 +104,7 @@
 				span_danger("[our_guy] suddenly slows from [our_guy.p_their()] inhuman speeds!"),
 				span_danger("You suddenly slow back to normal speed!")
 			)
-		our_guy.adjustStaminaLoss(constant_dose_time)
+		our_guy.adjust_stamina_loss(constant_dose_time)
 
 	else // Much longer than that however, and you're not gonna have a good day
 		if(!(our_guy.mob_biotypes & MOB_ROBOTIC))
@@ -113,9 +119,9 @@
 				span_danger("[our_guy] suddenly snaps back from [our_guy.p_their()] inhuman speeds!"),
 				span_danger("You suddenly snap back to normal speeds. You feel like you've just been run over by a power loader.")
 			)
-		our_guy.adjustStaminaLoss(constant_dose_time)
+		our_guy.adjust_stamina_loss(constant_dose_time)
 		if(!HAS_TRAIT(our_guy, TRAIT_TWITCH_ADAPTED))
-			our_guy.adjustOrganLoss(ORGAN_SLOT_HEART, 0.3 * constant_dose_time) // Basically you might die
+			our_guy.adjust_organ_loss(ORGAN_SLOT_HEART, 0.3 * constant_dose_time, required_organ_flag = affected_organ_flags) // Basically you might die
 
 	if(!our_guy.hud_used)
 		return
@@ -125,18 +131,48 @@
 	game_plane_master_controller.remove_filter(TWITCH_SCREEN_FILTER)
 	game_plane_master_controller.remove_filter(TWITCH_SCREEN_BLUR)
 
+/// Signal sent by the relay_attackers element. If the attacker was too close for comfort (in melee range), apply a stagger.
+/datum/reagent/drug/twitch/proc/on_attacked(mob/source, mob/attacker, attack_flags)
+	SIGNAL_HANDLER
+	if(!isliving(source))
+		return
+	var/mob/living/our_guy = source
+	if(get_dist(attacker, source) <= 1)
+		our_guy.visible_message(span_warning("[our_guy] is thrown off-balance by [attacker], staggering them badly!"),
+		span_warning("Being struck by [attacker] in such close range while TWitched staggers you!"),
+		span_warning("You hear the sound of someone being hit by something up close, and a subsequent loss of footing."))
+		our_guy.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH * 2, STAGGERED_SLOWDOWN_LENGTH * 4) // staggers for +6 seconds, caps at 12
+
+/// Signal sent by COMSIG_ATOM_PREHITBY (from being hit with a thrown item). If someone hits you with a thrown, apply a stagger.
+/datum/reagent/drug/twitch/proc/on_hitby(atom/target, atom/movable/hit_atom, datum/thrownthing/throwingdatum)
+	SIGNAL_HANDLER
+	if(!isliving(target))
+		return
+	var/mob/living/our_guy = target
+	if(!isitem(hit_atom))
+		return
+	var/obj/item/hit_item = hit_atom
+	if(!hit_item.throwforce)
+		return
+	our_guy.visible_message(span_warning("[our_guy] is thrown off-balance by [hit_atom], staggering them!"),
+	span_warning("Being struck by [hit_atom] while TWitched staggers you!"),
+	span_warning("You hear the sound of someone being hit by something, and a subsequent loss of footing."))
+	our_guy.adjust_staggered_up_to(STAGGERED_SLOWDOWN_LENGTH, STAGGERED_SLOWDOWN_LENGTH) // staggers for +3 seconds, caps at 3
 
 /// Leaves an afterimage behind the mob when they move
 /datum/reagent/drug/twitch/proc/on_movement(mob/living/carbon/our_guy, atom/old_loc)
 	SIGNAL_HANDLER
 	new /obj/effect/temp_visual/decoy/twitch_afterimage(old_loc, our_guy)
 
-
 /// Tries to dodge incoming bullets if we aren't disabled for any reasons
 /datum/reagent/drug/twitch/proc/dodge_bullets(mob/living/carbon/human/source, obj/projectile/hitting_projectile, def_zone)
 	SIGNAL_HANDLER
 
-	if(HAS_TRAIT(source, TRAIT_INCAPACITATED))
+	if(HAS_TRAIT(source, TRAIT_INCAPACITATED)) // if downed, no bullet dodge
+		return NONE
+	if(source.get_timed_status_effect_duration(/datum/status_effect/staggered)) // if staggered, no bullet dodge
+		return NONE
+	if(source.legcuffed) // if legcuffed, no bullet dodge
 		return NONE
 	source.visible_message(
 		span_danger("[source] effortlessly dodges [hitting_projectile]!"),
@@ -163,7 +199,7 @@
 		var/mob/living/carbon/human/human = our_guy
 		human.adjust_coretemperature(heating * TEMPERATURE_DAMAGE_COEFFICIENT)
 	else
-		our_guy.adjustOrganLoss(ORGAN_SLOT_HEART, 0.1 * REM * seconds_per_tick)
+		our_guy.adjust_organ_loss(ORGAN_SLOT_HEART, 0.1 * REM * seconds_per_tick, required_organ_flag = affected_organ_flags)
 
 	if(locate(/datum/reagent/drug/kronkaine) in our_guy.reagents.reagent_list) // Kronkaine, another heart-straining drug, could cause problems if mixed with this
 		our_guy.ForceContractDisease(new /datum/disease/adrenal_crisis(), FALSE, TRUE)
@@ -201,8 +237,8 @@
 		var/mob/living/carbon/human/human = our_guy
 		human.adjust_coretemperature(heating * TEMPERATURE_DAMAGE_COEFFICIENT)
 	else
-		our_guy.adjustOrganLoss(ORGAN_SLOT_HEART, 1 * REM * seconds_per_tick, required_organ_flag = affected_organ_flags)
-	our_guy.adjustToxLoss(1 * REM * seconds_per_tick, updating_health = FALSE, forced = TRUE, required_biotype = affected_biotype)
+		our_guy.adjust_organ_loss(ORGAN_SLOT_HEART, 1 * REM * seconds_per_tick, required_organ_flag = affected_organ_flags)
+	our_guy.adjust_tox_loss(1 * REM * seconds_per_tick, updating_health = FALSE, forced = TRUE, required_biotype = affected_biotype)
 
 	if(SPT_PROB(5, seconds_per_tick) && !(our_guy.mob_biotypes & MOB_ROBOTIC))
 		to_chat(our_guy, span_danger("You cough up a splatter of blood!"))

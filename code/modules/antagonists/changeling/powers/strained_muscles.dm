@@ -21,7 +21,7 @@
 	else
 		user.remove_movespeed_modifier(/datum/movespeed_modifier/strained_muscles)
 		to_chat(user, span_notice("Our muscles relax."))
-		if(stacks >= 10)
+		if(stacks >= 5) // NOVA EDIT CHANGE - 5, instead of 10, means it only lasts half as long (instead of like, 50 seconds straight) - ORIGINAL: if(stacks >= 10)
 			to_chat(user, span_danger("We collapse in exhaustion."))
 			user.Paralyze(60)
 			user.emote("gasp")
@@ -49,7 +49,7 @@
 
 		stacks++
 
-		user.adjustStaminaLoss(stacks * 1.3) //At first the changeling may regenerate stamina fast enough to nullify fatigue, but it will stack
+		user.adjust_stamina_loss(stacks * 1.3) //At first the changeling may regenerate stamina fast enough to nullify fatigue, but it will stack
 
 		if(stacks == 11) //Warning message that the stacks are getting too high
 			to_chat(user, span_warning("Our legs are really starting to hurt..."))

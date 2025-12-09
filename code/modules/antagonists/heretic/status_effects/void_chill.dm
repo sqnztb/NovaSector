@@ -26,6 +26,8 @@
 /datum/status_effect/void_chill/on_apply()
 	if(issilicon(owner))
 		return FALSE
+	if(IS_HERETIC_OR_MONSTER(owner))
+		return FALSE
 	return TRUE
 
 /datum/status_effect/void_chill/on_remove()
@@ -33,7 +35,7 @@
 	owner.remove_atom_colour(TEMPORARY_COLOUR_PRIORITY, COLOR_BLUE_LIGHT)
 	owner.remove_movespeed_modifier(/datum/movespeed_modifier/void_chill)
 	owner.remove_alt_appearance("heretic_status")
-	REMOVE_TRAIT(owner, TRAIT_HYPOTHERMIC, REF(src))
+	REMOVE_TRAIT(owner, TRAIT_HYPOTHERMIC, TRAIT_STATUS_EFFECT(id))
 	UnregisterSignal(owner, COMSIG_ATOM_UPDATE_OVERLAYS)
 
 /datum/status_effect/void_chill/tick(seconds_between_ticks)
@@ -74,7 +76,7 @@
 	stacks = max(0, min(stack_limit, stacks + new_stacks))
 	update_movespeed(stacks)
 	if(stacks >= 5)
-		ADD_TRAIT(owner, TRAIT_HYPOTHERMIC, REF(src))
+		ADD_TRAIT(owner, TRAIT_HYPOTHERMIC, TRAIT_STATUS_EFFECT(id))
 
 ///Updates the movespeed of owner based on the amount of stacks of the debuff
 /datum/status_effect/void_chill/proc/update_movespeed(stacks)
@@ -84,7 +86,7 @@
 
 /datum/status_effect/void_chill/lasting
 	id = "lasting_void_chill"
-	duration = -1
+	duration = STATUS_EFFECT_PERMANENT
 
 /datum/movespeed_modifier/void_chill
 	variable = TRUE
@@ -94,15 +96,16 @@
 /atom/movable/screen/alert/status_effect/void_chill
 	name = "Void Chill"
 	desc = "There's something freezing you from within and without. You've never felt cold this oppressive before..."
-	icon_state = "void_chill_minor"
+	icon_state = "heretic_template"
+	overlay_state = "void_chill_minor"
 
-/atom/movable/screen/alert/status_effect/void_chill/update_icon_state()
-	. = ..()
+/atom/movable/screen/alert/status_effect/void_chill/update_overlays()
 	if(!istype(attached_effect, /datum/status_effect/void_chill))
-		return
+		return ..()
 	var/datum/status_effect/void_chill/chill_effect = attached_effect
 	if(chill_effect.stacks >= 5)
-		icon_state = "void_chill_oh_fuck"
+		overlay_state = "void_chill_oh_fuck"
+	return ..()
 
 /atom/movable/screen/alert/status_effect/void_chill/update_desc(updates)
 	. = ..()

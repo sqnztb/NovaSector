@@ -89,9 +89,9 @@
 	mind_reference = null
 	SSopposing_force.remove_opfor(src)
 	QDEL_LIST(objectives)
-	QDEL_LIST(admin_chat)
-	QDEL_LIST(modification_log)
 	QDEL_NULL(stat_button)
+	admin_chat.Cut()
+	modification_log.Cut()
 	return ..()
 
 /datum/opposing_force/Topic(href, list/href_list)
@@ -104,10 +104,10 @@
 /// Builds the HTML panel entry for the round end report
 /datum/opposing_force/proc/build_html_panel_entry()
 	var/list/opfor_entry = list("<b>[mind_reference.key]</b> - ")
-	opfor_entry += "<a href='?priv_msg=[ckey(mind_reference.key)]'>PM</a> "
+	opfor_entry += "<a href='byond://?priv_msg=[ckey(mind_reference.key)]'>PM</a> "
 	if(mind_reference.current)
-		opfor_entry += "<a href='?_src_=holder;[HrefToken()];adminplayerobservefollow=[REF(mind_reference?.current)]'>FLW</a> "
-	opfor_entry += "<a href='?src=[REF(src)];admin_pref=show_panel'>Show OPFOR Panel</a>"
+		opfor_entry += "<a href='byond://?_src_=holder;[HrefToken()];adminplayerobservefollow=[REF(mind_reference?.current)]'>FLW</a> "
+	opfor_entry += "<a href='byond://?src=[REF(src)];admin_pref=show_panel'>Show OPFOR Panel</a>"
 	return opfor_entry.Join()
 
 /datum/opposing_force/ui_interact(mob/user, datum/tgui/ui)
@@ -308,11 +308,11 @@
 				return
 			for(var/datum/opposing_force_objective/objective as anything in objectives)
 				if(objective.status == OPFOR_OBJECTIVE_STATUS_NOT_REVIEWED)
-					to_chat(usr, examine_block(span_command_headset(span_pink("OPFOR: ERROR, some objectives have not been reviewed. Please approve/deny all objectives."))))
+					to_chat(usr, boxed_message(span_command_headset(span_pink("OPFOR: ERROR, some objectives have not been reviewed. Please approve/deny all objectives."))))
 					return
 			for(var/datum/opposing_force_selected_equipment/equipment as anything in selected_equipment)
 				if(equipment.status == OPFOR_EQUIPMENT_STATUS_NOT_REVIEWED)
-					to_chat(usr, examine_block(span_command_headset(span_pink("OPFOR: ERROR, some equipment requests have not been reviewed. Please approve/deny all equipment requests."))))
+					to_chat(usr, boxed_message(span_command_headset(span_pink("OPFOR: ERROR, some equipment requests have not been reviewed. Please approve/deny all equipment requests."))))
 					return
 			SSopposing_force.approve(src, usr)
 		if("approve_all")
@@ -328,7 +328,7 @@
 		if("deny")
 			if(!check_rights(R_ADMIN))
 				return
-			var/denied_reason = tgui_input_text(usr, "Denial Reason", "Enter a reason for denying this application:", max_length = MAX_NAME_LEN)
+			var/denied_reason = tgui_input_text(usr, "Denial Reason", "Enter a reason for denying this application:", max_length = MAX_MESSAGE_LEN)
 			// Checking to see if the user is spamming the button, async and all.
 			if((status == OPFOR_STATUS_DENIED) || !denied_reason)
 				return
@@ -378,9 +378,8 @@
 	user.client?.admin_follow(mind_reference.current)
 
 /datum/opposing_force/proc/set_equipment_count(mob/user, datum/opposing_force_selected_equipment/equipment, new_count)
-	var/sanitized_newcount = sanitize_integer(new_count, 1, equipment.opposing_force_equipment.max_amount)
-	equipment.count = new_count
-	add_log(user.ckey, "Set equipment '[equipment.opposing_force_equipment.name] count to [sanitized_newcount]")
+	var/sanitized_newcount = sanitize_integer(new_count, 1, equipment.opposing_force_equipment.max_amount, default = 1)
+	equipment.count = sanitized_newcount
 
 /datum/opposing_force/proc/handle(mob/user)
 	if(handling_admin)
@@ -388,7 +387,7 @@
 		if(choice == "No")
 			return
 	handling_admin = get_admin_ckey(user)
-	to_chat(mind_reference.current, examine_block(span_nicegreen("Your OPFOR application is now being handled by [handling_admin].")))
+	to_chat(mind_reference.current, boxed_message(span_nicegreen("Your OPFOR application is now being handled by [handling_admin].")))
 	send_admins_opfor_message("HANDLE: [ADMIN_LOOKUPFLW(user)] is handling [mind_reference.key]'s OPFOR application.")
 	send_system_message("[handling_admin] has assigned themselves to this application")
 	add_log(user.ckey, "Assigned self to application")
@@ -419,7 +418,11 @@
 	incoming_equipment.status = OPFOR_EQUIPMENT_STATUS_DENIED
 	incoming_equipment.denied_reason = denied_reason
 	send_system_message("[user ? get_admin_ckey(user) : "The OPFOR subsystem"] has denied equipment '[incoming_equipment.opposing_force_equipment.name]'[denied_reason ? " with the reason '[denied_reason]'" : ""]")
-	add_log(user.ckey, "Denied equipment: [incoming_equipment.opposing_force_equipment.name] with reason: [denied_reason]")
+	add_log(user.ckey,
+		"Denied equipment: [incoming_equipment.opposing_force_equipment.name] with reason: [denied_reason]. \
+		User's reason was: [incoming_equipment.reason]. \
+		Backstory: [set_backstory]"
+	)
 
 /datum/opposing_force/proc/approve_equipment(mob/user, datum/opposing_force_selected_equipment/incoming_equipment)
 	if(incoming_equipment.status == OPFOR_EQUIPMENT_STATUS_APPROVED)
@@ -427,7 +430,11 @@
 	incoming_equipment.status = OPFOR_EQUIPMENT_STATUS_APPROVED
 	incoming_equipment.denied_reason = ""
 	send_system_message("[user ? get_admin_ckey(user) : "The OPFOR subsystem"] has approved equipment '[incoming_equipment.opposing_force_equipment.name]'")
-	add_log(user.ckey, "Approved equipment: [incoming_equipment.opposing_force_equipment.name]")
+	add_log(user.ckey,
+		"Approved equipment: [incoming_equipment.opposing_force_equipment.name]. \
+		User's reason was: [incoming_equipment.reason]. \
+		Backstory: [set_backstory]"
+	)
 
 /datum/opposing_force/proc/set_equipment_reason(mob/user, datum/opposing_force_selected_equipment/incoming_equipment, new_reason)
 	if(!can_edit)
@@ -435,14 +442,12 @@
 	if(!incoming_equipment)
 		CRASH("set_equipment_reason tried to update a non existent opfor equipment datum!")
 	var/sanitized_reason = replacetext(STRIP_HTML_SIMPLE(new_reason, OPFOR_TEXT_LIMIT_DESCRIPTION), "\"", " ")
-	add_log(user.ckey, "Updated equipment([incoming_equipment.opposing_force_equipment.name]) REASON from: [incoming_equipment.reason] to: [sanitized_reason]")
 	incoming_equipment.reason = sanitized_reason
 	return TRUE
 
 /datum/opposing_force/proc/remove_equipment(mob/user, datum/opposing_force_selected_equipment/incoming_equipment)
 	if(!can_edit)
 		return
-	add_log(user.ckey, "Removed equipment: [incoming_equipment.opposing_force_equipment.name]")
 	selected_equipment -= incoming_equipment
 	qdel(incoming_equipment)
 
@@ -454,7 +459,6 @@
 		return
 	var/datum/opposing_force_selected_equipment/new_selected = new(incoming_equipment)
 	selected_equipment += new_selected
-	add_log(user.ckey, "Selected equipment: [incoming_equipment.name]")
 	return new_selected
 
 /datum/opposing_force/proc/issue_gear(mob/user)
@@ -519,7 +523,7 @@
 	add_log(user.ckey, "Submitted to the OPFOR subsystem")
 	send_system_message("[user ? get_admin_ckey(user) : "The OPFOR subsystem"] has submitted the application for review")
 	send_admins_opfor_message(span_command_headset("SUBMISSION: [ADMIN_LOOKUPFLW(user)] has submitted their OPFOR application. They are number [queue_position] in the queue."))
-	to_chat(usr, examine_block(span_nicegreen(("You have been added to the queue for the OPFOR subsystem. You are number <b>[queue_position]</b> in line."))))
+	to_chat(usr, boxed_message(span_nicegreen(("You have been added to the queue for the OPFOR subsystem. You are number <b>[queue_position]</b> in line."))))
 
 /datum/opposing_force/proc/modify_request(mob/user)
 	if(status == OPFOR_STATUS_CHANGES_REQUESTED)
@@ -552,7 +556,7 @@
 		opfor.status = OPFOR_OBJECTIVE_STATUS_DENIED
 	SEND_SOUND(mind_reference.current, sound('modular_nova/modules/opposing_force/sound/denied.ogg'))
 	add_log(denier.ckey, "Denied application")
-	to_chat(mind_reference.current, examine_block(span_redtext("Your OPFOR application has been denied by [denier ? get_admin_ckey(denier) : "the OPFOR subsystem"]!")))
+	to_chat(mind_reference.current, boxed_message(span_redtext("Your OPFOR application has been denied by [denier ? get_admin_ckey(denier) : "the OPFOR subsystem"]!")))
 	send_system_message(get_admin_ckey(denier) + " has denied the application with the following reason: [reason]")
 	send_admins_opfor_message("[span_red("DENIED")]: [ADMIN_LOOKUPFLW(denier)] has denied [ckey]'s application([reason ? reason : "No reason specified"])")
 	ticket_counter_add_handled(denier.key, 1)
@@ -571,7 +575,7 @@
 			continue
 		objective_denied = TRUE
 		break
-	to_chat(mind_reference.current, examine_block(span_greentext("Your OPFOR application has been [objective_denied ? span_bold("partially approved (please view your OPFOR for details)") : span_bold("fully approved")] by [approver ? get_admin_ckey(approver) : "the OPFOR subsystem"]!")))
+	to_chat(mind_reference.current, boxed_message(span_greentext("Your OPFOR application has been [objective_denied ? span_bold("partially approved (please view your OPFOR for details)") : span_bold("fully approved")] by [approver ? get_admin_ckey(approver) : "the OPFOR subsystem"]!")))
 	send_system_message("[approver ? get_admin_ckey(approver) : "The OPFOR subsystem"] has approved the application")
 	send_admins_opfor_message("[span_green("APPROVED")]: [ADMIN_LOOKUPFLW(approver)] has approved [ckey]'s application")
 	ticket_counter_add_handled(approver.key, 1)
@@ -600,7 +604,6 @@
 	if(!can_edit)
 		return
 	var/sanitized_backstory = STRIP_HTML_SIMPLE(incoming_backstory, OPFOR_TEXT_LIMIT_BACKSTORY)
-	add_log(user.ckey, "Updated BACKSTORY from: [set_backstory] to: [sanitized_backstory]")
 	set_backstory = sanitized_backstory
 	return TRUE
 
@@ -612,7 +615,6 @@
 			opfor.status = OPFOR_OBJECTIVE_STATUS_APPROVED
 	send_system_message("[user ? get_admin_ckey(user) : "The OPFOR subsystem"] has approved the application and ALL objectives and equipment")
 	add_log(user.ckey, "Approved application and all objectives and equipment")
-
 
 /**
  * Objective procs
@@ -635,7 +637,6 @@
 			opposing_force_objective.text_intensity = OPFOR_OBJECTIVE_INTENSITY_4
 		if(401 to 501)
 			opposing_force_objective.text_intensity = OPFOR_OBJECTIVE_INTENSITY_5
-	add_log(user.ckey, "Set updated an objective intensity from [opposing_force_objective.intensity] to [sanitized_intensity].")
 	opposing_force_objective.intensity = sanitized_intensity
 	return TRUE
 
@@ -646,7 +647,6 @@
 		CRASH("set_objective_description tried to update a non existent opfor objective!")
 	var/sanitized_description = replacetext(STRIP_HTML_SIMPLE(new_description, OPFOR_TEXT_LIMIT_DESCRIPTION), "\"", " ")
 	opposing_force_objective.description = sanitized_description
-	add_log(user.ckey, "Updated objective([opposing_force_objective.title]) DESCRIPTION from: [opposing_force_objective.description] to: [sanitized_description]")
 	return TRUE
 
 /datum/opposing_force/proc/set_objective_justification(mob/user, datum/opposing_force_objective/opposing_force_objective, new_justification)
@@ -656,7 +656,6 @@
 		CRASH("set_objective_description tried to update a non existent opfor objective!")
 	var/sanitize_justification = replacetext(STRIP_HTML_SIMPLE(new_justification, OPFOR_TEXT_LIMIT_JUSTIFICATION), "\"", " ")
 	opposing_force_objective.justification = sanitize_justification
-	add_log(user.ckey, "Updated objective([opposing_force_objective.title]) JUSTIFICATION from: [opposing_force_objective.justification] to: [sanitize_justification]")
 	return TRUE
 
 /datum/opposing_force/proc/remove_objective(mob/user, datum/opposing_force_objective/opposing_force_objective)
@@ -665,7 +664,6 @@
 	if(!opposing_force_objective)
 		CRASH("set_objective_description tried to remove a non existent opfor objective!")
 	objectives -= opposing_force_objective
-	add_log(user.ckey, "Removed the following objective from their OPFOR application: [opposing_force_objective.title]")
 	qdel(opposing_force_objective)
 	return TRUE
 
@@ -677,7 +675,6 @@
 		return
 	var/datum/opposing_force_objective/opfor_objective = new
 	objectives += opfor_objective
-	add_log(user.ckey, "Added a new blank objective")
 	return opfor_objective
 
 /datum/opposing_force/proc/set_objective_title(mob/user, datum/opposing_force_objective/opposing_force_objective, new_title)
@@ -686,7 +683,6 @@
 	var/sanitized_title = replacetext(STRIP_HTML_SIMPLE(new_title, OPFOR_TEXT_LIMIT_TITLE), "\"", " ")
 	if(!opposing_force_objective)
 		CRASH("set_objective_description tried to update a non existent opfor objective!")
-	add_log(user.ckey, "Updated objective([opposing_force_objective.title]) TITLE from: [opposing_force_objective.title] to: [sanitized_title]")
 	opposing_force_objective.title = sanitized_title
 	return TRUE
 
@@ -713,7 +709,7 @@
 	log_admin(msg)
 
 /datum/opposing_force/proc/send_admins_opfor_message(message)
-	message = "[span_pink("OPFOR:")] [span_admin("[message] (<a href='?src=[REF(src)];admin_pref=show_panel'>Show Panel</a>)")]"
+	message = "[span_pink("OPFOR:")] [span_admin("[message] (<a href='byond://?src=[REF(src)];admin_pref=show_panel'>Show Panel</a>)")]"
 	to_chat(GLOB.admins,
 		type = MESSAGE_TYPE_ADMINLOG,
 		html = message,
@@ -744,7 +740,7 @@
 
 /datum/opposing_force/proc/broadcast_queue_change()
 	var/queue_number = SSopposing_force.get_queue_position(src)
-	to_chat(mind_reference.current, examine_block(span_nicegreen("Your OPFOR application is now number [queue_number] in the queue.")))
+	to_chat(mind_reference.current, boxed_message(span_nicegreen("Your OPFOR application is now number [queue_number] in the queue.")))
 	send_system_message("Application is now number [queue_number] in the queue")
 
 /datum/opposing_force/proc/send_message(mob/user, message)
@@ -823,7 +819,7 @@
 	send_system_message("Weak against armor: [initial(processed_item.weak_against_armour) ? "Yes" : "No"]")
 	send_system_message("Damage type: [initial(processed_item.damtype)]")
 	send_system_message("Wound bonus: [initial(processed_item.wound_bonus)]")
-	send_system_message("Bare wound bonus: [initial(processed_item.bare_wound_bonus)]")
+	send_system_message("Bare wound bonus: [initial(processed_item.exposed_wound_bonus)]")
 	send_system_message("Force: [initial(processed_item.force)]")
 
 /datum/opposing_force/proc/unlock_equipment(mob/user)
@@ -847,7 +843,7 @@
 		send_system_message("ERROR: You are muted.")
 		return
 	if(user.ckey != handling_admin && GLOB.directory[handling_admin])
-		to_chat(GLOB.directory[handling_admin], span_pink("OPFOR: [user] has pinged their OPFOR admin chat! (<a href='?src=[REF(src)];admin_pref=show_panel'>Show Panel</a>)"))
+		to_chat(GLOB.directory[handling_admin], span_pink("OPFOR: [user] has pinged their OPFOR admin chat! (<a href='byond://?src=[REF(src)];admin_pref=show_panel'>Show Panel</a>)"))
 		SEND_SOUND(GLOB.directory[handling_admin], sound('sound/misc/bloop.ogg'))
 		send_system_message("Handling admin pinged.")
 		COOLDOWN_START(src, ping_cooldown, OPFOR_PING_COOLDOWN)
@@ -940,7 +936,7 @@
 
 						if(\
 						!equipment["equipment_parent_category"]|| !(equipment["equipment_parent_category"] in SSopposing_force.equipment_list)\
-						 || !equipment["equipment_parent_type"] || !ispath(text2path(equipment["equipment_parent_type"]), /datum/opposing_force_equipment))
+							|| !equipment["equipment_parent_type"] || !ispath(text2path(equipment["equipment_parent_type"]), /datum/opposing_force_equipment))
 							continue
 
 						// creates a new selected equipment datum using a type gotten from the given equipment type via SSopposing_force.equipment_list
@@ -987,7 +983,6 @@
 			"equipment_count" = iterating_equipment.count,
 		)
 
-	add_log(exporter.ckey, "Exported a json OPFOR.")
 
 	var/to_write_file = "data/opfor_temp/[REF(src)].json"
 	rustg_file_write(json_encode(exported_data), to_write_file)
@@ -997,25 +992,9 @@
 
 	catch
 		log_game("OPFOR by ckey: [exporter.ckey] attempted to export JSON data but ftp(file()) runtimed.")
-		add_log(exporter.ckey, "Attempted to export JSON data but ftp(file()) runtimed.")
 
 	fdel(to_write_file)
 
-
-/datum/action/opfor
-	name = "Open Opposing Force Panel"
-	button_icon_state = "round_end"
-
-/datum/action/opfor/Trigger(trigger_flags)
-	. = ..()
-	if(!.)
-		return
-	owner.opposing_force()
-
-/datum/action/opfor/IsAvailable(feedback = FALSE)
-	if(!target)
-		return FALSE
-	return ..()
 
 /obj/effect/statclick/opfor_specific
 	var/datum/opposing_force/opfor

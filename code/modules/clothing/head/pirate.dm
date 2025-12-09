@@ -11,7 +11,7 @@
 
 /obj/item/clothing/head/costume/pirate/equipped(mob/user, slot)
 	. = ..()
-	if(!(slot_flags & slot))
+	if(!(slot_flags & slot) || isdrone(user))
 		return
 	user.grant_language(/datum/language/piratespeak, source = LANGUAGE_HAT)
 	to_chat(user, span_boldnotice("You suddenly know how to speak like a pirate!"))
@@ -25,8 +25,8 @@
 
 /obj/item/clothing/head/costume/pirate/armored
 	armor_type = /datum/armor/pirate_armored
-	strip_delay = 40
-	equip_delay_other = 20
+	strip_delay = 4 SECONDS
+	equip_delay_other = 2 SECONDS
 
 /datum/armor/pirate_armored
 	melee = 30
@@ -51,8 +51,8 @@
 
 /obj/item/clothing/head/costume/pirate/bandana/armored
 	armor_type = /datum/armor/bandana_armored
-	strip_delay = 40
-	equip_delay_other = 20
+	strip_delay = 4 SECONDS
+	equip_delay_other = 2 SECONDS
 
 /datum/armor/bandana_armored
 	melee = 30

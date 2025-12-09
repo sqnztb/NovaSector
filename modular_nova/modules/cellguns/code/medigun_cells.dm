@@ -25,7 +25,7 @@
 	if(!IsLivingHuman(target))
 		return FALSE
 
-	target.adjustOxyLoss(-amount_healed)
+	target.adjust_oxy_loss(-amount_healed)
 
 /*
 *	PROCS
@@ -65,40 +65,40 @@
 	if(!IsLivingHuman(target))
 		return FALSE
 
-	DamageDisgust(target, target.getBruteLoss())
+	DamageDisgust(target, target.get_brute_loss())
 	target.adjust_disgust(base_disgust)
-	target.adjustBruteLoss(-amount_healed)
+	target.adjust_brute_loss(-amount_healed)
 
 /// Heals Burn swithout safety
 /obj/projectile/energy/medical/proc/healBurn(mob/living/target, amount_healed, max_clone, base_disgust)
 	if(!IsLivingHuman(target))
 		return FALSE
 
-	DamageDisgust(target, target.getFireLoss())
+	DamageDisgust(target, target.get_fire_loss())
 	target.adjust_disgust(base_disgust)
-	target.adjustFireLoss(-amount_healed)
+	target.adjust_fire_loss(-amount_healed)
 
 /// Heals Brute with safety
 /obj/projectile/energy/medical/proc/safeBrute(mob/living/target, amount_healed, base_disgust)
 	if(!IsLivingHuman(target))
 		return FALSE
 
-	if(target.getBruteLoss() >= 50 )
+	if(target.get_brute_loss() >= 50 )
 		return FALSE
 
 	target.adjust_disgust(base_disgust)
-	target.adjustBruteLoss(-amount_healed)
+	target.adjust_brute_loss(-amount_healed)
 
 /// Heals Burn with safety.
 /obj/projectile/energy/medical/proc/safeBurn(mob/living/target, amount_healed, base_disgust)
 	if(!IsLivingHuman(target))
 		return FALSE
 
-	if(target.getFireLoss() >= 50 )
+	if(target.get_fire_loss() >= 50 )
 		return FALSE
 
 	target.adjust_disgust(base_disgust)
-	target.adjustFireLoss(-amount_healed)
+	target.adjust_fire_loss(-amount_healed)
 
 /// Heals Toxins
 /obj/projectile/energy/medical/proc/healTox(mob/living/target, amount_healed)
@@ -112,7 +112,7 @@
 	if(healing_multiplier < 0.25)
 		healing_multiplier = 0.25
 
-	target.adjustToxLoss(-(amount_healed * healing_multiplier))
+	target.adjust_tox_loss(-(amount_healed * healing_multiplier))
 
 /*
 *	HEALING PROJECTILES
@@ -406,7 +406,7 @@
 		return
 
 	var/mob/living/carbon/wearer = target
-	var/obj/item/clothing/gown = new /obj/item/clothing/suit/toggle/labcoat/hospitalgown/hardlight
+	var/obj/item/clothing/gown = new /obj/item/clothing/suit/toggle/labcoat/nova/surgical_gown/hardlight
 
 	if(wearer.equip_to_slot_if_possible(gown, ITEM_SLOT_OCLOTHING, 1, 1, 1))
 		wearer.visible_message(span_notice("The [gown] covers [wearer] body"), span_notice("The [gown] wraps around your body, covering you"))
@@ -425,10 +425,10 @@
 	name = "salve globule"
 	icon_state = "glob_projectile"
 	shrapnel_type = /obj/item/mending_globule/hardlight
-	embed_type = /datum/embed_data/salve_globule
+	embed_type = /datum/embedding/salve_globule
 	damage = 0
 
-/datum/embed_data/salve_globule
+/datum/embedding/salve_globule
 	embed_chance = 100
 	ignore_throwspeed_threshold = TRUE
 	pain_mult = 0
@@ -496,12 +496,12 @@
 	sparks.start()
 
 //Objects Used by medicells.
-/obj/item/clothing/suit/toggle/labcoat/hospitalgown/hardlight
-	name = "hardlight hospital gown"
+/obj/item/clothing/suit/toggle/labcoat/nova/surgical_gown/hardlight
+	name = "hardlight surgical gown"
 	desc = "A hospital gown made out of hardlight - you can barely feel it on your body, especially with all the anesthetics."
-	greyscale_colors = "#B2D3CA#B2D3CA#B2D3CA#B2D3CA"
+	icon_state = "lgown"
 
-/obj/item/clothing/suit/toggle/labcoat/hospitalgown/hardlight/dropped(mob/user)
+/obj/item/clothing/suit/toggle/labcoat/nova/surgical_gown/hardlight/dropped(mob/user)
 	. = ..()
 	var/mob/living/carbon/wearer = user
 
@@ -514,27 +514,21 @@
 /obj/item/mending_globule/hardlight
 	name = "salve globule"
 	desc = "A ball of regenerative synthetic plant matter, contained within a soft hardlight field."
-	embed_type = /datum/embed_data/salve_globule
+	embed_type = /datum/embedding/salve_globule/hardlight
 	icon = 'modular_nova/modules/cellguns/icons/obj/guns/mediguns/misc.dmi'
 	icon_state = "globule"
 	heals_left = 40 //This means it'll be heaing 15 damage per type max.
 
-/obj/item/mending_globule/hardlight/unembedded()
-	. = ..()
-	qdel(src)
-
-/obj/item/mending_globule/hardlight/process()
-	if(!bodypart)
-		return FALSE
-
-	if(!bodypart.get_damage()) //Makes it poof as soon as the body part is fully healed, no keeping this on forever.
+/datum/embedding/salve_globule/hardlight/process(seconds_per_tick)
+	if(!owner_limb.get_damage()) //Makes it poof as soon as the body part is fully healed, no keeping this on forever.
 		qdel(src)
 		return FALSE
 
-	bodypart.heal_damage(0.25,0.25) //Reduced healing rate over original
-	heals_left--
+	var/obj/item/mending_globule/globule = parent
+	owner_limb.heal_damage(0.125 * seconds_per_tick, 0.125 * seconds_per_tick) //Reduced healing rate over original
+	globule.heals_left--
 
-	if(heals_left <= 0)
+	if(globule.heals_left <= 0)
 		qdel(src)
 
 //Hardlight Emergency Bed.

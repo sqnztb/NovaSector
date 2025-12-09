@@ -5,6 +5,7 @@
 	icon_state = "water_basin"
 	anchored = TRUE
 	density = TRUE
+	custom_materials = list(/datum/material/wood = SHEET_MATERIAL_AMOUNT * 5)
 
 	/// Tracks if you can fish from this basin
 	var/datum/component/fishing_spot/fishable
@@ -33,7 +34,7 @@
 	balloon_alert(user, "the water deepens!")
 	fishable = AddComponent(/datum/component/fishing_spot, /datum/fish_source/water_basin)
 
-/obj/structure/reagent_water_basin/attackby(obj/item/attacking_item, mob/living/user, params)
+/obj/structure/reagent_water_basin/attackby(obj/item/attacking_item, mob/user, list/modifiers, list/attack_modifiers)
 	if(istype(attacking_item, /obj/item/stack/ore/glass))
 		var/obj/item/stack/ore/glass/glass_obj = attacking_item
 		if(!glass_obj.use(1))
@@ -101,7 +102,7 @@
 		/obj/item/fish/cardinal = 15,
 		/obj/item/fish/greenchromis = 15,
 		/obj/item/fish/lanternfish = 5,
-		/obj/item/fish/dwarf_moonfish = 15,
+		/obj/item/fish/moonfish/dwarf = 15,
 		/obj/item/fish/gunner_jellyfish = 15,
 		/obj/item/fish/needlefish = 10,
 		/obj/item/fish/armorfish = 10,

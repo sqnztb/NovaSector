@@ -22,15 +22,15 @@
 	///Accepted "ammo" type
 	var/obj/item/ammo_type = /obj/item/ammo_casing/strilka310
 	///Projectile from said gun. Doesnt automatically inherit said ammo's projectile in case you wanted to make a gun that shoots floor tiles or something.
-	var/obj/item/projectile_type = /obj/projectile/bullet/strilka310
+	var/obj/projectile/projectile_type = /obj/projectile/bullet/strilka310
 	///If the gun has anything in it.
 	var/loaded_gun = TRUE
 	///If the gun is currently loaded with its maximum capacity.
 	var/fully_loaded_gun = TRUE
 	///delay in firing the gun after lighting
-	var/fire_delay = 5
+	var/fire_delay = 5 DECISECONDS
 	///Delay between shots
-	var/shot_delay = 3
+	var/shot_delay = 3 DECISECONDS
 	///If the gun shakes the camera when firing
 	var/firing_shakes_camera = TRUE
 	///sound of firing for all but last shot
@@ -46,7 +46,7 @@
 	return ITEM_INTERACT_SUCCESS
 
 ///Covers Reloading and lighting of the gun
-/obj/structure/mounted_gun/attackby(obj/item/ammo_casing/used_item, mob/user, params)
+/obj/structure/mounted_gun/attackby(obj/item/ammo_casing/used_item, mob/user, list/modifiers, list/attack_modifiers)
 	var/ignition_message = used_item.ignition_effect(src, user) // Checks if item used can ignite stuff.
 	if(istype(used_item, ammo_type))
 		if(fully_loaded_gun)
@@ -111,17 +111,18 @@
 	projectile_type = /obj/projectile/bullet/junk
 	loaded_gun = TRUE
 	fully_loaded_gun = TRUE
-	fire_delay = 3
-	shot_delay = 2
+	fire_delay = 3 DECISECONDS
+	shot_delay = 2 DECISECONDS
 	firing_shakes_camera = FALSE
+	custom_materials = list(/datum/material/iron = SHEET_MATERIAL_AMOUNT * 24.5, /datum/material/wood = SHEET_MATERIAL_AMOUNT * 15, /datum/material/glass = SMALL_MATERIAL_AMOUNT)
 
 /obj/structure/mounted_gun/pipe/examine_more(mob/user)
 	. = ..()
-	. += span_notice("<b><i>Looking down at the [name], you recall a tale told to you in some distant memory...</i></b>")
+	. += span_notice("<b><i>Looking down at \the [src], you recall a tale told to you in some distant memory...</i></b>")
 
 	. += span_info("To commit an act of vengeance is not unlike to enter a blood pact with a devil, ending the life of another, at the cost of your own.")
 	. += span_info("When humanity first spilled the blood of its own kind, with likely nothing more than a rock, the seal was broken. Vengeance was borne unto the world.")
-	. += span_info("However, vengeance alone is not enough to carry through the grim deed of murder. One must an gain advantage over their adversary.")
+	. += span_info("However, vengeance alone is not enough to carry through the grim deed of murder. One must gain an advantage over their adversary.")
 	. += span_info("As such, the man who ended another's life with a stone, was in turn smote himself by another wielding a spear. After spears, bows. Swords. Guns. Tanks. Missiles. And on and on Vengeance fed. Growing stronger. Growing Worse.")
 	. += span_info("Vengeance persists to this day. It sometimes may slumber, seemingly content with having gorged itself, but in the end, its ceaseless hunger can be neither numbed nor sated.")
 
@@ -174,8 +175,8 @@
 	projectile_type = /obj/projectile/bullet/shrapnel
 	loaded_gun = TRUE
 	fully_loaded_gun = TRUE
-	fire_delay = 3
-	shot_delay = 1
+	fire_delay = 3 DECISECONDS
+	shot_delay = 1 DECISECONDS
 	firing_shakes_camera = FALSE
 
 /obj/item/ammo_casing/canister_shot
@@ -185,3 +186,4 @@
 	obj_flags = CONDUCTS_ELECTRICITY
 	throwforce = 0
 	w_class = WEIGHT_CLASS_BULKY
+	projectile_type = /obj/projectile/bullet/shrapnel

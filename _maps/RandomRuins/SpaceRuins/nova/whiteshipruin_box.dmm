@@ -3,23 +3,9 @@
 /obj/structure/girder/reinforced,
 /turf/open/space/basic,
 /area/ruin/space/has_grav/whiteship/box)
-"ag" = (
-/obj/machinery/power/shuttle_engine/huge{
-	dir = 8;
-	pixel_x = 9
-	},
-/turf/template_noop,
-/area/template_noop)
 "aw" = (
 /obj/effect/decal/cleanable/glass/plastitanium,
 /turf/open/floor/mineral/titanium/white/airless,
-/area/ruin/space/has_grav/whiteship/box)
-"az" = (
-/obj/machinery/power/shuttle_engine/large{
-	dir = 8;
-	pixel_x = 8
-	},
-/turf/open/space/basic,
 /area/ruin/space/has_grav/whiteship/box)
 "aB" = (
 /obj/effect/decal/cleanable/dirt,
@@ -45,10 +31,6 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/extinguisher_cabinet/directional/west,
 /turf/open/floor/carpet,
-/area/ruin/space/has_grav/whiteship/box)
-"bN" = (
-/obj/machinery/suit_storage_unit/mining/eva,
-/turf/open/floor/mineral/titanium/tiled/white,
 /area/ruin/space/has_grav/whiteship/box)
 "bT" = (
 /obj/effect/turf_decal/trimline/yellow/arrow_ccw{
@@ -750,6 +732,17 @@
 "uS" = (
 /turf/open/floor/iron/shuttle/exploration/textured_flat,
 /area/ruin/space/has_grav/whiteship/box)
+"uU" = (
+/obj/machinery/suit_storage_unit/open,
+/turf/open/floor/mineral/titanium/tiled/white,
+/area/ruin/space/has_grav/whiteship/box)
+"uW" = (
+/obj/machinery/power/shuttle_engine/large{
+	dir = 8;
+	pixel_x = 8
+	},
+/turf/template_noop,
+/area/space/nearstation)
 "vk" = (
 /obj/effect/decal/cleanable/glass,
 /obj/structure/lattice,
@@ -838,6 +831,10 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/reinforced,
 /turf/open/floor/iron/showroomfloor/airless,
+/area/ruin/space/has_grav/whiteship/box)
+"zW" = (
+/obj/machinery/suit_storage_unit/medical,
+/turf/open/floor/mineral/titanium/tiled/white,
 /area/ruin/space/has_grav/whiteship/box)
 "zY" = (
 /obj/effect/turf_decal/siding/wideplating/corner{
@@ -948,6 +945,13 @@
 /obj/machinery/light/broken/directional/east,
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/whiteship/box)
+"CQ" = (
+/obj/effect/turf_decal/siding/yellow{
+	dir = 1
+	},
+/obj/machinery/suit_storage_unit/open,
+/turf/open/floor/iron/shuttle/cargo,
+/area/ruin/space/has_grav/whiteship/box)
 "CR" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/closet/crate,
@@ -989,6 +993,13 @@
 	},
 /turf/open/floor/engine,
 /area/ruin/space/has_grav/whiteship/box)
+"ER" = (
+/obj/machinery/power/shuttle_engine/huge{
+	dir = 8;
+	pixel_x = 9
+	},
+/turf/template_noop,
+/area/space/nearstation)
 "ET" = (
 /obj/effect/decal/cleanable/glass,
 /obj/effect/decal/cleanable/dirt,
@@ -1011,13 +1022,6 @@
 	},
 /turf/open/floor/engine,
 /area/ruin/space/has_grav/whiteship/box)
-"FN" = (
-/obj/machinery/power/shuttle_engine/large{
-	dir = 8;
-	pixel_x = 8
-	},
-/turf/template_noop,
-/area/template_noop)
 "FX" = (
 /obj/effect/turf_decal/tile/blue/half/contrasted,
 /obj/machinery/sleeper{
@@ -1068,10 +1072,6 @@
 /area/ruin/space/has_grav/whiteship/box)
 "HR" = (
 /turf/closed/wall/mineral/titanium/nodiagonal,
-/area/ruin/space/has_grav/whiteship/box)
-"HT" = (
-/obj/machinery/suit_storage_unit/standard_unit,
-/turf/open/floor/mineral/titanium/tiled/white,
 /area/ruin/space/has_grav/whiteship/box)
 "HW" = (
 /obj/effect/turf_decal/tile/blue/half/contrasted{
@@ -1132,9 +1132,6 @@
 /area/ruin/space/has_grav/whiteship/box)
 "Jy" = (
 /turf/closed/mineral/random,
-/area/ruin/space/has_grav/whiteship/box)
-"JF" = (
-/turf/open/space/basic,
 /area/ruin/space/has_grav/whiteship/box)
 "JI" = (
 /obj/machinery/atmospherics/pipe/smart/manifold4w/dark,
@@ -1636,7 +1633,7 @@ nH
 nH
 nH
 nH
-ag
+ER
 nH
 nH
 nH
@@ -1654,13 +1651,13 @@ nH
 nH
 nH
 nH
-JF
-az
-JF
-JF
-JF
-JF
-az
+nH
+uW
+nH
+nH
+nH
+nH
+uW
 nH
 nH
 nH
@@ -1696,7 +1693,7 @@ nH
 nH
 nH
 nH
-FN
+uW
 Wc
 Ie
 Ie
@@ -1707,7 +1704,7 @@ Ie
 Ie
 Wc
 nH
-FN
+uW
 nH
 nH
 "}
@@ -2094,7 +2091,7 @@ HR
 Dl
 Ay
 HR
-bN
+zW
 IA
 Ud
 kX
@@ -2116,7 +2113,7 @@ kK
 Ay
 Xk
 HR
-HT
+uU
 IA
 Qx
 Gp
@@ -2138,7 +2135,7 @@ kK
 sX
 kd
 HR
-HT
+uU
 IA
 Qx
 BG
@@ -2233,7 +2230,7 @@ lS
 Ov
 ji
 HR
-Xp
+CQ
 nL
 nL
 Px

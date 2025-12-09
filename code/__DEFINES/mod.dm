@@ -7,6 +7,9 @@
 /// Default time for a part of the suit to seal.
 #define MOD_ACTIVATION_STEP_TIME (1 SECONDS)
 
+/// How likely the UI is to fail when malfunctioning
+#define MOD_MALFUNCTION_PROB 75
+
 /// Passive module, just acts when put in naturally.
 #define MODULE_PASSIVE 0
 /// Usable module, does something when you press a button.
@@ -22,6 +25,8 @@
 #define MODULE_ALLOW_INCAPACITATED (1<<1)
 /// This module can be used while the suit is off
 #define MODULE_ALLOW_INACTIVE (1<<2)
+/// This module can be used (by button) while the suit is unworn
+#define MODULE_ALLOW_UNWORN (1<<3)
 
 #define UNSEALED_LAYER "unsealed_layer"
 #define SEALED_LAYER "sealed_layer"
@@ -38,6 +43,10 @@
 //Defines used to override MOD clothing's icon and worn icon files in the skin.
 #define MOD_ICON_OVERRIDE "mod_icon_override"
 #define MOD_WORN_ICON_OVERRIDE "mod_worn_icon_override"
+// NOVA EDIT ADDITION START
+#define MOD_DIGITIGRADE_ICON_OVERRIDE "mod_digitigrade_icon_override"
+#define MOD_SNOUT_ICON_OVERRIDE "mod_snout_icon_override"
+// NOVA EDIT ADDITION END
 
 //Defines for MODlink frequencies
 #define MODLINK_FREQ_NANOTRASEN "NT"
@@ -54,6 +63,10 @@
 #define GAUNTLET_SEAL_MESSAGE "tighten around your fingers and wrists"
 #define BOOT_UNSEAL_MESSAGE "relax their grip on your legs"
 #define BOOT_SEAL_MESSAGE "seal around your feet"
+#define GLASSES_UNSEAL_MESSAGE "moves away from your eyes"
+#define GLASSES_SEAL_MESSAGE "settle onto your eyes"
+#define NECKWEAR_UNSEAL_MESSAGE "looses around your neck"
+#define NECKWEAR_SEAL_MESSAGE "tightens around your neck"
 
 /// Global list of all /datum/mod_theme
 GLOBAL_LIST_INIT(mod_themes, setup_mod_themes())

@@ -3,6 +3,7 @@
 	access = NONE
 	group = "Goodies"
 	goody = TRUE
+	crate_type = null
 	discountable = SUPPLY_PACK_STD_DISCOUNTABLE
 
 /datum/supply_pack/goody/clear_pda
@@ -16,21 +17,42 @@
 	desc = "Contains one speedloader of .38 DumDum ammunition, good for embedding in soft targets."
 	cost = PAYCHECK_CREW * 2
 	access_view = ACCESS_WEAPONS
-	contains = list(/obj/item/ammo_box/c38/dumdum)
+	contains = list(/obj/item/ammo_box/speedloader/c38/dumdum)
 
 /datum/supply_pack/goody/match38
 	name = ".38 Match Grade Speedloader Single-Pack"
 	desc = "Contains one speedloader of match grade .38 ammunition, perfect for showing off trickshots."
 	cost = PAYCHECK_CREW * 2
 	access_view = ACCESS_WEAPONS
-	contains = list(/obj/item/ammo_box/c38/match)
+	contains = list(/obj/item/ammo_box/speedloader/c38/match)
 
 /datum/supply_pack/goody/rubber
 	name = ".38 Rubber Speedloader Single-Pack"
 	desc = "Contains one speedloader of bouncy rubber .38 ammunition, for when you want to bounce your shots off anything and everything."
 	cost = PAYCHECK_CREW * 1.5
 	access_view = ACCESS_WEAPONS
-	contains = list(/obj/item/ammo_box/c38/match/bouncy)
+	contains = list(/obj/item/ammo_box/speedloader/c38/match/bouncy)
+
+/datum/supply_pack/goody/dumdum38br
+	name = ".38 DumDum Magazine Single-Pack"
+	desc = "Contains one magazine of .38 DumDum ammunition, good for embedding in soft targets."
+	cost = PAYCHECK_CREW * 2
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/ammo_box/magazine/m38/dumdum)
+
+/datum/supply_pack/goody/match38br
+	name = ".38 Match Grade Magazine Single-Pack"
+	desc = "Contains one magazine of match grade .38 ammunition, perfect for showing off trickshots."
+	cost = PAYCHECK_CREW * 2
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/ammo_box/magazine/m38/match)
+
+/datum/supply_pack/goody/rubber
+	name = ".38 Rubber Magazine Single-Pack"
+	desc = "Contains one magazine of bouncy rubber .38 ammunition, for when you want to bounce your shots off anything and everything."
+	cost = PAYCHECK_CREW * 1.5
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/ammo_box/magazine/m38/match/bouncy)
 
 /datum/supply_pack/goody/mars_single
 	name = "Colt Detective Special Single-Pack"
@@ -57,11 +79,14 @@
 	desc = "For when the enemy absolutely needs to be replaced with lead. Contains one Aussec-designed Combat Shotgun, and one Shotgun Bandolier."
 	cost = PAYCHECK_COMMAND * 15
 	access_view = ACCESS_ARMORY
-	contains = list(/obj/item/gun/ballistic/shotgun/automatic/combat, /obj/item/storage/belt/bandolier)
+	contains = list(
+		/obj/item/gun/ballistic/shotgun/automatic/combat,
+		/obj/item/storage/belt/bandolier
+	)
 
 /datum/supply_pack/goody/disabler_single
 	name = "Disabler Single-Pack"
-	desc = "Contains one disabler, the non-lethal workhorse of Nanotrasen security everywhere. Comes in a energy holster, just in case you happen to have an extra disabler."
+	desc = "Contains one disabler, the non-lethal workhorse of Nanotrasen security everywhere. Comes in an energy holster, just in case you happen to have an extra disabler."
 	cost = PAYCHECK_COMMAND * 3
 	access_view = ACCESS_WEAPONS
 	contains = list(/obj/item/storage/belt/holster/energy/disabler)
@@ -74,11 +99,39 @@
 	contains = list(/obj/item/gun/energy/e_gun)
 
 /datum/supply_pack/goody/laser_single
-	name = "Laser Gun Single-Pack"
-	desc = "Contains one laser gun, the lethal workhorse of Nanotrasen security everywhere."
+	name = "Type 5 Laser Gun Single-Pack"
+	desc = "Contains one Type 5 laser gun, the lethal workhorse of Nanotrasen security everywhere."
 	cost = PAYCHECK_COMMAND * 6
 	access_view = ACCESS_WEAPONS
 	contains = list(/obj/item/gun/energy/laser)
+
+/datum/supply_pack/goody/carbine_single
+	name = "Type 5R Laser Carbine Single_Pack"
+	desc = "Contains one laser carbine. Fires a rapid burst of slightly weaker laser projectiles."
+	cost = PAYCHECK_COMMAND * 8
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/gun/energy/laser/carbine)
+
+/datum/supply_pack/goody/laser_pistol_single
+	name = "Type 5C Laser Pistol Single-Pack"
+	desc = "Contains one Type 5C laser pistol in an energy shoulder holster. Groovy."
+	cost = PAYCHECK_COMMAND * 2
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/storage/belt/holster/energy/laser_pistol)
+
+/datum/supply_pack/goody/laser_single_soul
+	name = "Type 3 Laser Gun Single-Pack"
+	desc = "Contains one Type 3 laser gun. They don't make 'em like they used to."
+	cost = PAYCHECK_COMMAND * 6
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/gun/energy/laser/soul)
+
+/datum/supply_pack/goody/smg_single
+	name = "Disabler SMG Single_Pack"
+	desc = "Contains one disabler SMGs, capable of rapidly firing weak disabler beams."
+	cost = PAYCHECK_COMMAND * 6
+	access_view = ACCESS_WEAPONS
+	contains = list(/obj/item/gun/energy/disabler/smg)
 
 /datum/supply_pack/goody/hell_single
 	name = "Hellgun Kit Single-Pack"
@@ -166,6 +219,18 @@
 	cost = PAYCHECK_CREW * 5
 	contains = list(/obj/item/toy/plush/shark)
 
+/datum/supply_pack/goody/horseplush
+	name = "Horse Plushie"
+	desc = "A horse friend to keep you company. You're basically a cowboy now."
+	cost = PAYCHECK_CREW * 4
+	contains = list(/obj/item/toy/plush/horse)
+
+/datum/supply_pack/goody/unicornplush
+	name = "Unicorn Plushie"
+	desc = "Good for someone who likes unicorns. Wait, that's everybody!"
+	cost = PAYCHECK_CREW * 5
+	contains = list(/obj/item/toy/plush/unicorn)
+
 /datum/supply_pack/goody/dog_bone
 	name = "Jumbo Dog Bone"
 	desc = "The best dog bone money can have exported to a space station. A perfect gift for a dog."
@@ -193,7 +258,10 @@
 	name = "Medipen Two-Pak"
 	desc = "Contains one standard epinephrine medipen and one standard emergency medkit medipen. For when you want to prepare for the worst."
 	cost = PAYCHECK_CREW * 2
-	contains = list(/obj/item/reagent_containers/hypospray/medipen, /obj/item/reagent_containers/hypospray/medipen/ekit)
+	contains = list(
+		/obj/item/reagent_containers/hypospray/medipen,
+		/obj/item/reagent_containers/hypospray/medipen/ekit
+	)
 
 /datum/supply_pack/goody/mothic_rations
 	name = "Surplus Mothic Ration Pack"
@@ -211,7 +279,7 @@
 	name = "Emergency Mutadone Pill Single-Pack"
 	desc = "A single pill for curing genetic defects. Useful for when you can't procure one from medbay."
 	cost = PAYCHECK_CREW * 2.5
-	contains = list(/obj/item/reagent_containers/pill/mutadone)
+	contains = list(/obj/item/reagent_containers/applicator/pill/mutadone)
 
 /datum/supply_pack/goody/rapid_lighting_device
 	name = "Rapid Lighting Device (RLD) Single-Pack"
@@ -221,7 +289,7 @@
 
 /datum/supply_pack/goody/fishing_toolbox
 	name = "Fishing Toolbox"
-	desc = "Complete toolbox set for your fishing adventure. Contains a valuable tip. Advanced hooks and lines sold separetely."
+	desc = "Complete toolbox set for your fishing adventure. Contains a valuable tip. Advanced hooks and lines sold separately."
 	cost = PAYCHECK_CREW * 2
 	contains = list(/obj/item/storage/toolbox/fishing)
 
@@ -259,7 +327,7 @@
 	name = "Can of Fish Food Single-Pack"
 	desc = "For keeping your little friends fed and alive."
 	cost = PAYCHECK_CREW
-	contains = list(/obj/item/fish_feed)
+	contains = list(/obj/item/reagent_containers/cup/fish_feed)
 
 /datum/supply_pack/goody/naturalbait
 	name = "Freshness Jars full of Natural Bait Single-Pack"
@@ -284,6 +352,12 @@
 	desc = "A catalog containing all the fishy info you'll ever need."
 	cost = PAYCHECK_LOWER
 	contains = list(/obj/item/book/manual/fish_catalog)
+
+/datum/supply_pack/goody/aquarium_props
+	name = "Aquarium Props Single-Pack"
+	desc = "A box containing generic aquarium props. You'll still need an aquarium or fish tank for these."
+	cost = PAYCHECK_LOWER
+	contains = list(/obj/item/storage/box/aquarium_props)
 
 /datum/supply_pack/goody/coffee_mug
 	name = "Coffee Mug Single-Pack"
@@ -333,3 +407,28 @@
 	desc = "A single bottle of Interdyne brand experimental medication, used for treating people suffering from hereditary manifold disease."
 	cost = PAYCHECK_CREW * 6.5
 	contains = list(/obj/item/storage/pill_bottle/sansufentanyl)
+
+/datum/supply_pack/goody/pet_mouse
+	name = "Pet Mouse"
+	desc = "Many people consider mice to be vermin, or dirty lab animals for experimentation, or a culinary delicacy. That's why we're not asking any questions, here."
+	cost = PAYCHECK_CREW * 1.5
+	contains = list(/obj/item/pet_carrier/small/mouse)
+
+/datum/supply_pack/goody/shuttle_construction_kit
+	name = "Shuttle Construction Starter Kit"
+	desc = "Contains a set of shuttle blueprints, and the circuitboards necessary for constructing your own shuttle. \
+			Well at least the ones you can't source yourself without Science's help."
+	cost = PAYCHECK_COMMAND * 12 //You assistants with shipwrighting ambitions can do a couple bounties, can't you?
+	access_view = ACCESS_AUX_BASE //Engineers have it, QM can give it to whoever, and scientists can just research the tech.
+	contains = list(
+		/obj/item/shuttle_blueprints,
+		/obj/item/circuitboard/computer/shuttle/flight_control,
+		/obj/item/circuitboard/computer/shuttle/docker,
+		/obj/item/circuitboard/machine/engine/propulsion = 2,
+	)
+
+/datum/supply_pack/goody/golfcart_key
+	name = "Spare Golf Cart Key"
+	desc = "If you in your carelessness lost the key to your golfcart you can purchase one. Unfortunately not covered by warranty."
+	cost = PAYCHECK_CREW * 5
+	contains = list(/obj/item/key/golfcart)

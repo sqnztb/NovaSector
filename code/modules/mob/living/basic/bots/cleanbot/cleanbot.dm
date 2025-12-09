@@ -8,6 +8,7 @@
 	health = 25
 	maxHealth = 25
 	light_color = "#99ccff"
+	custom_materials = list(/datum/material/iron = SHEET_MATERIAL_AMOUNT, /datum/material/glass = SMALL_MATERIAL_AMOUNT * 2)
 
 	req_one_access = list(ACCESS_ROBOTICS, ACCESS_JANITOR)
 	radio_key = /obj/item/encryptionkey/headset_service
@@ -83,9 +84,9 @@
 		/obj/effect/decal/cleanable/greenglow,
 		/obj/effect/decal/cleanable/insectguts,
 		/obj/effect/decal/cleanable/molten_object,
-		/obj/effect/decal/cleanable/oil,
+		/obj/effect/decal/cleanable/blood/oil,
 		/obj/effect/decal/cleanable/food,
-		/obj/effect/decal/cleanable/robot_debris,
+		/obj/effect/decal/cleanable/blood/gibs/robot_debris,
 		/obj/effect/decal/cleanable/shreds,
 		/obj/effect/decal/cleanable/glass,
 		/obj/effect/decal/cleanable/vomit,
@@ -93,9 +94,8 @@
 	))
 	///blood we can clean
 	var/static/list/cleanable_blood = typecacheof(list(
-		/obj/effect/decal/cleanable/xenoblood,
+		/obj/effect/decal/cleanable/blood/xeno,
 		/obj/effect/decal/cleanable/blood,
-		/obj/effect/decal/cleanable/trail_holder,
 	))
 	///pests we hunt
 	var/static/list/huntable_pests = typecacheof(list(
@@ -107,6 +107,7 @@
 		/obj/item/trash,
 		/obj/item/food/deadmouse,
 		/obj/effect/decal/remains,
+		/obj/item/cigbutt,
 	))
 	///drawings we hunt
 	var/static/list/cleanable_drawings = typecacheof(list(/obj/effect/decal/cleanable/crayon))
@@ -127,7 +128,7 @@
 	var/static/list/pet_commands = list(
 		/datum/pet_command/idle,
 		/datum/pet_command/free,
-		/datum/pet_command/point_targeting/clean,
+		/datum/pet_command/clean,
 	)
 
 /mob/living/basic/bot/cleanbot/Initialize(mapload)
@@ -199,15 +200,11 @@
 	if(var_name == NAMEOF(src, base_icon))
 		update_appearance(UPDATE_ICON)
 
-/mob/living/basic/bot/cleanbot/emag_act(mob/user, obj/item/card/emag/emag_card)
-	. = ..()
-	if(!(bot_access_flags & BOT_COVER_EMAGGED))
-		return
+/mob/living/basic/bot/cleanbot/emag_effects(mob/user)
 	if(weapon)
 		weapon.force = initial(weapon.force)
 	balloon_alert(user, "safeties disabled")
 	audible_message(span_danger("[src] buzzes oddly!"))
-	return TRUE
 
 /mob/living/basic/bot/cleanbot/explode()
 	var/atom/drop_loc = drop_location()
@@ -310,9 +307,14 @@
 		return
 
 	var/mob/living/carbon/stabbed_carbon = shanked_victim
-	var/assigned_role = stabbed_carbon.mind?.assigned_role.title
-	if(!isnull(assigned_role))
-		update_title(assigned_role)
+
+	if(ishuman(shanked_victim))
+		var/mob/living/carbon/human/stabbed_human = shanked_victim
+		var/obj/item/card/id/id = stabbed_human.wear_id?.GetID()
+		if(!isnull(id))
+			var/assigned_role = id.assignment
+			if(!isnull(assigned_role))
+				update_title(assigned_role)
 
 	zone_selected = pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 	INVOKE_ASYNC(weapon, TYPE_PROC_REF(/obj/item, attack), stabbed_carbon, src)

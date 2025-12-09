@@ -1,7 +1,8 @@
 /obj/structure/closet/secure_closet/des_two/sa_locker
-	icon_door = "cap"
-	icon_state = "cap"
-	name = "\proper station admiral's locker"
+	icon_door = "admiral"
+	icon_state = "admiral"
+	name = "\proper ship admiral's locker"
+	icon = 'modular_nova/modules/ds2_fluff/icons/closet_wide.dmi'
 
 /obj/item/clothing/accessory/medal/gold/admiral
 	name = "medal of admiralty"
@@ -9,7 +10,7 @@
 		It signifies the codified responsibilities of an Admiral to the Sothran Syndicate, and their undisputable authority over their crew."
 
 /obj/item/storage/bag/garment/station_admiral
-	name = "station admiral's garment bag"
+	name = "ship admiral's garment bag"
 	desc = "A bag for storing extra clothes and shoes. This one belongs to the station admiral."
 
 /obj/item/storage/bag/garment/station_admiral/PopulateContents()
@@ -26,12 +27,15 @@
 	new /obj/item/ammo_box/magazine/m9mm_aps(src)
 	new /obj/item/storage/bag/garment/station_admiral(src)
 	new /obj/item/radio/headset/interdyne/command(src)
+	new /obj/item/card/id/departmental_budget/ds2(src)
+	new /obj/item/storage/lockbox/medal/nova/synd(src)
 
 /obj/structure/closet/secure_closet/des_two/maa_locker
-	icon_door = "warden"
-	icon_state = "warden"
+	icon_door = "masteratarms"
+	icon_state = "masteratarms"
 	name = "master at arms' locker"
 	req_access = list("syndicate_leader")
+	icon = 'modular_nova/modules/ds2_fluff/icons/closet_wide.dmi'
 
 /obj/item/clothing/accessory/medal/silver/maa_medal
 	name = "military excellence medal"
@@ -53,8 +57,7 @@
 /obj/item/storage/bag/garment/master_arms/PopulateContents()
 	new /obj/item/clothing/accessory/medal/silver/maa_medal(src)
 	new /obj/item/clothing/suit/armor/vest/warden/syndicate(src)
-	new /obj/item/clothing/under/rank/security/nova/utility/redsec/syndicate(src)
-	new /obj/item/clothing/under/suit/nova/helltaker(src)
+	new /obj/item/clothing/under/rank/security/nova/utility/syndicate(src)
 	new /obj/item/clothing/suit/armor/hos/maa_greatcoat(src)
 	new /obj/item/clothing/head/beret/sec/navywarden/syndicate(src)
 	new /obj/item/clothing/head/hats/hos/beret/syndicate(src)
@@ -73,8 +76,9 @@
 	new /obj/item/gun/energy/disabler(src)
 
 /obj/structure/closet/secure_closet/des_two/cl_locker
-	icon_door = "hop"
-	icon_state = "hop"
+	icon = 'modular_nova/modules/ds2_fluff/icons/closet_wide.dmi'
+	icon_door = "liason"
+	icon_state = "liason"
 	name = "\proper corporate liaison's locker"
 	req_access = list("syndicate_leader")
 
@@ -89,7 +93,6 @@
 /obj/item/storage/bag/garment/corprate_liaison/PopulateContents()
 	new /obj/item/clothing/under/syndicate/nova/baseball(src)
 	new /obj/item/clothing/under/rank/captain/nova/utility/syndicate(src)
-	new /obj/item/clothing/under/suit/nova/helltaker(src)
 	new /obj/item/clothing/neck/chaplain/black/cl_cloak(src)
 	new /obj/item/clothing/head/hats/hos/beret/syndicate(src)
 	new /obj/item/clothing/glasses/sunglasses(src)
@@ -97,9 +100,9 @@
 /obj/structure/closet/secure_closet/des_two/cl_locker/PopulateContents()
 	..()
 
-	new /obj/item/card/id/advanced/chameleon/black(src)
-	new /obj/item/card/id/advanced/chameleon/black(src)
-	new /obj/item/card/id/advanced/chameleon/black(src)
+	new /obj/item/card/id/advanced/chameleon/elite/black(src)
+	new /obj/item/card/id/advanced/chameleon/elite/black(src)
+	new /obj/item/card/id/advanced/chameleon/elite/black(src)
 	new /obj/item/encryptionkey/headset_syndicate/interdyne(src)
 	new /obj/item/encryptionkey/headset_syndicate/interdyne(src)
 	new /obj/item/encryptionkey/headset_syndicate/interdyne(src)
@@ -121,5 +124,7 @@
 	new /obj/item/storage/toolbox/guncase/nova/pistol/opfor/rapid_syringe(src)
 	new /obj/item/binoculars(src)
 	new /obj/item/clothing/head/hats/syndicate/interdyne_deckofficer_white(src)
-	new /obj/item/clothing/suit/toggle/labcoat/nova/rd/deckofficer(src)
+	new /obj/item/clothing/suit/toggle/labcoat/nova/fancy/rd/deckofficer(src)
 	new /obj/item/modular_computer/pda/chameleon(src)
+	new /obj/item/card/id/departmental_budget/interdyne(src)
+	new /obj/item/storage/hypospraykit/cmo/interdyne(src)

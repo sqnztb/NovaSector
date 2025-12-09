@@ -36,7 +36,7 @@
 	damage = 100
 	range = 7
 	pressure_decrease = 0.10
-	speed = 0.1
+	speed = 10
 	projectile_piercing = PASSMOB
 
 /obj/projectile/kinetic/repeater
@@ -48,7 +48,6 @@
 /obj/projectile/kinetic/shotgun
 	name = "split kinetic force"
 	damage = 20
-	mod_mult = 0.5
 
 /obj/projectile/kinetic/glock
 	name = "light kinetic force"

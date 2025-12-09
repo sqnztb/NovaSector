@@ -113,7 +113,7 @@
 /obj/machinery/microwave/Destroy()
 	QDEL_LIST(ingredients)
 	QDEL_NULL(soundloop)
-	QDEL_NULL(particles)
+	remove_shared_particles(/particles/smoke)
 	if(!isnull(cell))
 		QDEL_NULL(cell)
 	return ..()
@@ -128,6 +128,10 @@
 
 	if(held_item?.tool_behaviour == TOOL_WRENCH)
 		context[SCREENTIP_CONTEXT_LMB] = "[anchored ? "Unsecure" : "Install/Secure"]"
+		return CONTEXTUAL_SCREENTIP_SET
+
+	if(held_item?.atom_storage)
+		context[SCREENTIP_CONTEXT_RMB] = "Dump contents"
 		return CONTEXTUAL_SCREENTIP_SET
 
 	if(broken > NOT_BROKEN)
@@ -233,8 +237,8 @@
 			MICROWAVE_INGREDIENT_OVERLAY_SIZE / icon_dimensions["height"],
 		)
 
-		ingredient_overlay.pixel_x = ingredient_shifts_x[(ingredient_count % ingredient_shifts_x.len) + 1]
-		ingredient_overlay.pixel_y = ingredient_shifts_y[(ingredient_count % ingredient_shifts_y.len) + 1]
+		ingredient_overlay.pixel_w = ingredient_shifts_x[(ingredient_count % ingredient_shifts_x.len) + 1]
+		ingredient_overlay.pixel_z = ingredient_shifts_y[(ingredient_count % ingredient_shifts_y.len) + 1]
 		ingredient_overlay.layer = FLOAT_LAYER
 		ingredient_overlay.plane = FLOAT_PLANE
 		ingredient_overlay.blend_mode = BLEND_INSET_OVERLAY
@@ -552,7 +556,7 @@
 
 	dirty = 0
 	update_appearance()
-	return . || TRUE
+	. |= COMPONENT_CLEANED|COMPONENT_CLEANED_GAIN_XP
 
 /obj/machinery/microwave/proc/eject()
 	var/atom/drop_loc = drop_location()
@@ -612,7 +616,7 @@
 		if(istype(potential_fooditem, /obj/item/modular_computer) && prob(75))
 			pda_failure = TRUE
 			notify_ghosts(
-				"[cooker] has overheated their PDA!",
+				"[cooker.real_name] has overheated their PDA!",
 				source = src,
 				notify_flags = NOTIFY_CATEGORY_NOFLASH,
 				header = "Hunger Games: Catching Fire",
@@ -707,16 +711,13 @@
 				if(HAS_TRAIT(smeller, TRAIT_ANOSMIA))
 					cant_smell += smeller
 			visible_message(span_danger("You smell a burnt smell coming from [src]!"), ignored_mobs = cant_smell)
-			particles = new /particles/smoke()
-			addtimer(CALLBACK(src, PROC_REF(remove_smoke)), 10 SECONDS)
+			add_shared_particles(/particles/smoke)
+			addtimer(CALLBACK(src, TYPE_PROC_REF(/atom/movable, remove_shared_particles), /particles/smoke), 10 SECONDS)
 			Shake(duration = 1 SECONDS)
 
 	cycles--
 	use_energy(active_power_usage)
 	addtimer(CALLBACK(src, PROC_REF(cook_loop), type, cycles, wait, cooker), wait)
-
-/obj/machinery/microwave/proc/remove_smoke()
-	QDEL_NULL(particles)
 
 /obj/machinery/microwave/power_change()
 	. = ..()

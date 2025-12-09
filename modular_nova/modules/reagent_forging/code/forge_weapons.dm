@@ -37,7 +37,7 @@
 	icon_state = "sword"
 	inhand_icon_state = "sword"
 	worn_icon_state = "sword_back"
-	belt_icon_state = "sword_belt"
+	inside_belt_icon_state = "sword_belt"
 	hitsound = 'sound/items/weapons/bladeslice.ogg'
 	block_chance = 20
 	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_BACK
@@ -55,7 +55,7 @@
 	icon_state = "katana"
 	inhand_icon_state = "katana"
 	worn_icon_state = "katana_back"
-	belt_icon_state = "katana_belt"
+	inside_belt_icon_state = "katana_belt"
 	hitsound = 'sound/items/weapons/bladeslice.ogg'
 	block_chance = 10
 	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_BACK
@@ -71,9 +71,9 @@
 	icon_state = "dagger"
 	inhand_icon_state = "dagger"
 	worn_icon_state = "dagger_back"
-	belt_icon_state = "dagger_belt"
+	inside_belt_icon_state = "dagger_belt"
 	hitsound = 'sound/items/weapons/bladeslice.ogg'
-	embed_type = /datum/embed_data/forged_dagger
+	embed_type = /datum/embedding/forged_dagger
 	throwforce = 17
 	throw_speed = 4
 	demolition_mod = 0.75
@@ -92,7 +92,7 @@
 	bonus_modifier = force + 7, \
 	)
 
-/datum/embed_data/forged_dagger
+/datum/embedding/forged_dagger
 	embed_chance = 50
 	fall_chance = 10
 	pain_mult = 4
@@ -122,14 +122,14 @@
 	worn_icon_state = "spear_back"
 	throwforce = 24
 	throw_speed = 4
-	embed_data = /datum/embed_data/spear
+	embed_data = /datum/embedding/spear
 	slot_flags = ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_BULKY
 	hitsound = 'sound/items/weapons/bladeslice.ogg'
 	attack_verb_continuous = list("attacks", "pokes", "jabs", "tears", "lacerates", "gores")
 	attack_verb_simple = list("attack", "poke", "jab", "tear", "lacerate", "gore")
 	wound_bonus = -15
-	bare_wound_bonus = 15
+	exposed_wound_bonus = 15
 	reach = 2
 	sharpness = SHARP_POINTY
 
@@ -148,14 +148,14 @@
 	worn_icon_state = "axe_back"
 	throwforce = 20
 	throw_speed = 4
-	embed_type = /datum/embed_data/forged_axe
+	embed_type = /datum/embedding/forged_axe
 	slot_flags = ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb_continuous = list("slashes", "bashes")
 	attack_verb_simple = list("slash", "bash")
 	sharpness = SHARP_EDGED
 
-/datum/embed_data/forged_axe
+/datum/embedding/forged_axe
 	embed_chance = 40
 	fall_chance = 10
 	pain_mult = 2
@@ -226,7 +226,7 @@
 	. += span_notice("Using a hammer on [src] will repair its damage!")
 	. += span_notice("This weapon seems twice as effective when used on beasts and monsters.")
 
-/obj/item/shield/buckler/reagent_weapon/attackby(obj/item/attacking_item, mob/user, params)
+/obj/item/shield/buckler/reagent_weapon/attackby(obj/item/attacking_item, mob/user, list/modifiers, list/attack_modifiers)
 	if(atom_integrity >= max_integrity)
 		return ..()
 	if(istype(attacking_item, /obj/item/forging/hammer))
@@ -295,7 +295,7 @@
 	AddElement(/datum/element/bane, mob_biotypes = MOB_BEAST, damage_multiplier = FAUNA_MULTIPLIER, requires_combat_mode = FALSE)
 	AddElement(/datum/element/bane, target_type = /mob/living/simple_animal/hostile/megafauna, damage_multiplier = MEGAFAUNA_MULTIPLIER, requires_combat_mode = FALSE)
 
-/obj/item/ammo_casing/arrow/attackby(obj/item/attacking_item, mob/user, params)
+/obj/item/ammo_casing/arrow/attackby(obj/item/attacking_item, mob/user, list/modifiers, list/attack_modifiers)
 	var/spawned_item
 	if(istype(attacking_item, /obj/item/stack/sheet/sinew))
 		spawned_item = /obj/item/ammo_casing/arrow/ash

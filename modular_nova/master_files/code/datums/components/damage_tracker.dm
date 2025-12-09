@@ -21,10 +21,10 @@
 	if(!istype(tracked_mob))
 		return FALSE
 
-	brute_damage = tracked_mob.getBruteLoss()
-	burn_damage = tracked_mob.getFireLoss()
-	toxin_damage = tracked_mob.getToxLoss()
-	oxygen_damage = tracked_mob.getOxyLoss()
+	brute_damage = tracked_mob.get_brute_loss()
+	burn_damage = tracked_mob.get_fire_loss()
+	toxin_damage = tracked_mob.get_tox_loss()
+	oxygen_damage = tracked_mob.get_oxy_loss()
 	stored_blood_volume = tracked_mob.blood_volume
 
 	return TRUE
@@ -35,10 +35,13 @@
 	if(!istype(tracked_mob))
 		return FALSE
 
-	tracked_mob.setBruteLoss(brute_damage)
-	tracked_mob.setFireLoss(burn_damage)
-	tracked_mob.setToxLoss(toxin_damage)
-	tracked_mob.setOxyLoss(oxygen_damage)
+	var/need_mob_update
+	need_mob_update += tracked_mob.set_brute_loss(brute_damage, updating_health = FALSE)
+	need_mob_update += tracked_mob.set_fire_loss(burn_damage, updating_health = FALSE)
+	need_mob_update += tracked_mob.set_fire_loss(toxin_damage, updating_health = FALSE)
+	need_mob_update += tracked_mob.set_fire_loss(oxygen_damage, updating_health = FALSE)
+	if(need_mob_update)
+		tracked_mob.updatehealth()
 	tracked_mob.blood_volume = stored_blood_volume
 
 	return TRUE
@@ -73,7 +76,7 @@
 	/// How much damage does the owner's ears currently have?
 	var/ear_damage
 
-	/// What brain traumas does the owner currently have?
+	/// What brain traumas does the owner currently have? Stored as a list of weakrefs
 	var/list/trauma_list = list()
 
 /datum/component/damage_tracker/human/update_damage_values()
@@ -83,16 +86,16 @@
 		return FALSE
 
 	var/list/current_trauma_list = human_parent.get_traumas()
-	if(length(current_trauma_list))
-		trauma_list = current_trauma_list.Copy()
+	for(var/datum/brain_trauma/trauma in current_trauma_list)
+		trauma_list += WEAKREF(trauma)
 
-	heart_damage = human_parent.check_organ_damage(/obj/item/organ/internal/heart)
-	liver_damage = human_parent.check_organ_damage(/obj/item/organ/internal/liver)
-	lung_damage = human_parent.check_organ_damage(/obj/item/organ/internal/lungs)
-	stomach_damage = human_parent.check_organ_damage(/obj/item/organ/internal/stomach)
-	brain_damage = human_parent.check_organ_damage(/obj/item/organ/internal/brain)
-	eye_damage = human_parent.check_organ_damage(/obj/item/organ/internal/eyes)
-	ear_damage = human_parent.check_organ_damage(/obj/item/organ/internal/ears)
+	heart_damage = human_parent.check_organ_damage(/obj/item/organ/heart)
+	liver_damage = human_parent.check_organ_damage(/obj/item/organ/liver)
+	lung_damage = human_parent.check_organ_damage(/obj/item/organ/lungs)
+	stomach_damage = human_parent.check_organ_damage(/obj/item/organ/stomach)
+	brain_damage = human_parent.check_organ_damage(/obj/item/organ/brain)
+	eye_damage = human_parent.check_organ_damage(/obj/item/organ/eyes)
+	ear_damage = human_parent.check_organ_damage(/obj/item/organ/ears)
 
 	return TRUE
 
@@ -102,20 +105,24 @@
 	if(!. || !istype(human_parent))
 		return FALSE
 
-	human_parent.setOrganLoss(ORGAN_SLOT_HEART, heart_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_LIVER, liver_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_LUNGS, lung_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_STOMACH, stomach_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_EYES, eye_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_EARS, ear_damage)
-	human_parent.setOrganLoss(ORGAN_SLOT_BRAIN, brain_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_HEART, heart_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_LIVER, liver_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_LUNGS, lung_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_STOMACH, stomach_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_EYES, eye_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_EARS, ear_damage)
+	human_parent.set_organ_loss(ORGAN_SLOT_BRAIN, brain_damage)
 
-	var/obj/item/organ/internal/brain/human_brain = human_parent.get_organ_by_type(/obj/item/organ/internal/brain)
+	var/obj/item/organ/brain/human_brain = human_parent.get_organ_by_type(/obj/item/organ/brain)
 	if(!human_brain)
 		return FALSE
 
 	var/list/current_trauma_list = human_parent.get_traumas()
-	for(var/datum/brain_trauma/trauma_to_add as anything in trauma_list)
+	for(var/datum/weakref/trauma_ref as anything in trauma_list)
+		var/datum/brain_trauma/trauma_to_add = trauma_ref?.resolve()
+		if(QDELETED(trauma_to_add))
+			trauma_list -= trauma_ref
+			continue
 		if(trauma_to_add in current_trauma_list)
 			continue // We don't need to torture the poor soul with the same brain trauma.
 

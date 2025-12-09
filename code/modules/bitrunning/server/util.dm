@@ -5,7 +5,7 @@
 /obj/machinery/quantum_server/proc/cool_off()
 	is_ready = TRUE
 	update_appearance()
-	radio.talk_into(src, "Thermal systems within operational parameters. Proceeding to domain configuration.", RADIO_CHANNEL_SUPPLY)
+	aas_config_announce(/datum/aas_config_entry/bitrunning_QS_ready_announcement, list(), src, list(RADIO_CHANNEL_SUPPLY))
 
 
 /// If there are hosted minds, attempts to get a list of their current virtual bodies w/ vitals
@@ -25,10 +25,10 @@
 			"health" = creature.health,
 			"name" = creature.name,
 			"pilot" = pilot,
-			"brute" = creature.getBruteLoss(),
-			"burn" = creature.getFireLoss(),
-			"tox" = creature.getToxLoss(),
-			"oxy" = creature.getOxyLoss(),
+			"brute" = creature.get_brute_loss(),
+			"burn" = creature.get_fire_loss(),
+			"tox" = creature.get_tox_loss(),
+			"oxy" = creature.get_oxy_loss(),
 		))
 
 	return hosted_avatars
@@ -96,7 +96,7 @@
 	for(var/datum/lazy_template/virtual_domain/available as anything in subtypesof(/datum/lazy_template/virtual_domain))
 		var/init_cost = initial(available.cost)
 
-		if(!initial(available.test_only) && \
+		if(!(initial(available.domain_flags) & DOMAIN_TEST_ONLY) && \
 			init_cost <= points && \
 			init_cost > BITRUNNER_COST_NONE && \
 			init_cost < BITRUNNER_COST_EXTREME \
@@ -148,7 +148,15 @@
 	if(isnull(entry_atom))
 		return
 
-	var/mob/living/carbon/new_avatar = generate_avatar(get_turf(entry_atom), netsuit)
+	// NOVA EDIT ADDITION BEGIN - PREFS!
+	var/datum/preferences/pref
+	var/load_loadout = FALSE
+	var/obj/item/bitrunning_disk/prefs/prefdisk = locate() in neo.get_contents()
+	if(prefdisk)
+		load_loadout = prefdisk.include_loadout
+		pref = prefdisk.loaded_preference
+	// NOVA EDIT ADDITION END
+	var/mob/living/carbon/new_avatar = generate_avatar(get_turf(entry_atom), netsuit, pref, include_loadout = load_loadout) // NOVA EDIT CHANGE - ORIGINAL: var/mob/living/carbon/new_avatar = generate_avatar(get_turf(entry_atom), netsuit)
 	stock_gear(new_avatar, neo, generated_domain)
 
 	// Cleanup for domains with one time use custom spawns

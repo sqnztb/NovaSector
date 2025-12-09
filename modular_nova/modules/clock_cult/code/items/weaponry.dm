@@ -56,12 +56,12 @@
 	name = "brass spear"
 	desc = "A razor-sharp spear made of brass. It thrums with barely-contained energy."
 	icon_state = "ratvarian_spear"
-	embed_type = /datum/embed_data/spear/brass
+	embed_type = /datum/embedding/spear/brass
 	throwforce = 36
 	force = 25
 	armour_penetration = 24
 
-/datum/embed_data/spear/brass
+/datum/embedding/spear/brass
 	impact_pain_mult = parent_type::impact_pain_mult + 8
 	remove_pain_mult = parent_type::remove_pain_mult + 8
 
@@ -208,7 +208,7 @@
 	update_icon()
 
 
-/obj/item/gun/ballistic/bow/clockwork/attackby(obj/item/I, mob/user, params)
+/obj/item/gun/ballistic/bow/clockwork/attackby(obj/item/attacking_item, mob/user, list/modifiers, list/attack_modifiers)
 	return
 
 
@@ -287,7 +287,7 @@
 	stamina = 45
 
 
-/obj/item/ammo_box/strilka310/lionhunter/clock
+/obj/item/ammo_box/speedloader/strilka310/lionhunter/clock
 	name = "stripper clip (.310 brass)"
 	desc = "A stripper clip that's just as brass as the rounds it holds."
 	icon = 'modular_nova/modules/clock_cult/icons/weapons/ammo.dmi'
@@ -302,7 +302,7 @@
 
 /obj/item/storage/pouch/ammo/clock/PopulateContents()
 	var/static/items_inside = list(
-		/obj/item/ammo_box/strilka310/lionhunter/clock = 3
+		/obj/item/ammo_box/speedloader/strilka310/lionhunter/clock = 3
 	)
 
 	generate_items_inside(items_inside, src)

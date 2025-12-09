@@ -27,6 +27,9 @@
 //What should vending machines charge when you buy something in-department.
 #define DEPARTMENT_DISCOUNT 0.2
 
+//the amount of credits collected by the vending machines that can be redeemed when restocking it.
+#define VENDING_CREDITS_COLLECTION_AMOUNT 0.2
+
 #define ACCOUNT_CIV "CIV"
 #define ACCOUNT_CIV_NAME "Civil Budget"
 #define ACCOUNT_ENG "ENG"
@@ -65,7 +68,7 @@
 #define CIV_JOB_GROW 12
 #define CIV_JOB_ATMOS 13
 #define CIV_JOB_BITRUN 14
-#define CIV_JOB_RANDOM 15
+#define CIV_JOB_RANDOM 24 // NOVA EDIT CHANGE - ORIGINAL: CIV_JOB_RANDOM 15
 
 //These defines are to be used to with the payment component, determines which lines will be used during a transaction. If in doubt, go with clinical.
 #define PAYMENT_CLINICAL "clinical"
@@ -79,4 +82,11 @@
 
 #define MARKET_EVENT_PROBABILITY 8 //Probability of a market event firing, in percent. Fires once per material, every stock market tick.
 
-#define MARKET_PROFIT_MODIFIER 0.8 //We don't make every sale a 1-1 of the actual buy price value, like with real life taxes and to encourage more smart trades
+/// The symbol for the default type of money used in the code.
+#define MONEY_SYMBOL "cr"
+/// The name for the default type of money used in the code.
+#define MONEY_NAME "credits"
+#define MONEY_NAME_SINGULAR "credit"
+
+#define MONEY_MINING_SYMBOL "mp"
+#define MONEY_BITRUNNING_SYMBOL "np"

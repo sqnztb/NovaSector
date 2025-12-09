@@ -25,8 +25,8 @@
 	map_generator = /datum/map_generator/cave_generator/trench
 
 /area/ruin/ocean
-	has_gravity = TRUE
-	area_flags = UNIQUE_AREA
+	default_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/ruin/ocean/listening_outpost
 	name = "Listening Station"

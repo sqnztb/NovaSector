@@ -24,20 +24,20 @@
 	var/id_trim = null
 
 	/// Type path of item to go in uniform slot
-	var/uniform = null
+	var/obj/item/uniform = null
 
 	/// Type path of item to go in suit slot
-	var/suit = null
+	var/obj/item/suit = null
 
 	/**
 	  * Type path of item to go in suit storage slot
 	  *
 	  * (make sure it's valid for that suit)
 	  */
-	var/suit_store = null
+	var/obj/item/suit_store = null
 
 	/// Type path of item to go in back slot
-	var/back = null
+	var/obj/item/back = null
 
 	/**
 	  * list of items that should go in the backpack of the user
@@ -47,7 +47,7 @@
 	var/list/backpack_contents = null
 
 	/// Type path of item to go in belt slot
-	var/belt = null
+	var/obj/item/belt = null
 
 	/**
 	  * list of items that should go in the belt of the user
@@ -98,7 +98,7 @@
 	/**
 	  * extra types for chameleon outfit changes, mostly guns
 	  *
-	  * Format of this list is (typepath, typepath, typepath)
+	  * Valid values are a single typepath or list of typepaths
 	  *
 	  * These are all added and returns in the list for get_chamelon_diguise_info proc
 	  */
@@ -136,11 +136,11 @@
  * other such sources of change
  *
  * Extra Arguments
- * * visualsOnly true if this is only for display (in the character setup screen)
+ * * visuals_only true if this is only for display (in the character setup screen)
  *
- * If visualsOnly is true, you can omit any work that doesn't visually appear on the character sprite
+ * If visuals_only is true, you can omit any work that doesn't visually appear on the character sprite
  */
-/datum/outfit/proc/pre_equip(mob/living/carbon/human/user, visualsOnly = FALSE)
+/datum/outfit/proc/pre_equip(mob/living/carbon/human/user, visuals_only = FALSE)
 	//to be overridden for customization depending on client prefs,species etc
 	return
 
@@ -151,11 +151,11 @@
  * fiddle with id bindings and accesses etc
  *
  * Extra Arguments
- * * visualsOnly true if this is only for display (in the character setup screen)
+ * * visuals_only true if this is only for display (in the character setup screen)
  *
- * If visualsOnly is true, you can omit any work that doesn't visually appear on the character sprite
+ * If visuals_only is true, you can omit any work that doesn't visually appear on the character sprite
  */
-/datum/outfit/proc/post_equip(mob/living/carbon/human/user, visualsOnly = FALSE)
+/datum/outfit/proc/post_equip(mob/living/carbon/human/user, visuals_only = FALSE)
 	//to be overridden for toggling internals, id binding, access etc
 	return
 
@@ -163,7 +163,7 @@
 	user.equip_to_slot_or_del(SSwardrobe.provide_type(##item_path, user), ##slot_name, TRUE, indirect_action = TRUE); \
 	var/obj/item/outfit_item = user.get_item_by_slot(##slot_name); \
 	if (outfit_item && outfit_item.type == ##item_path) { \
-		outfit_item.on_outfit_equip(user, visualsOnly, ##slot_name); \
+		outfit_item.on_outfit_equip(user, visuals_only, ##slot_name); \
 	} \
 }
 
@@ -171,12 +171,12 @@
  * Equips all defined types and paths to the mob passed in
  *
  * Extra Arguments
- * * visualsOnly true if this is only for display (in the character setup screen)
+ * * visuals_only true if this is only for display (in the character setup screen)
  *
- * If visualsOnly is true, you can omit any work that doesn't visually appear on the character sprite
+ * If visuals_only is true, you can omit any work that doesn't visually appear on the character sprite
  */
-/datum/outfit/proc/equip(mob/living/carbon/human/user, visualsOnly = FALSE)
-	pre_equip(user, visualsOnly)
+/datum/outfit/proc/equip(mob/living/carbon/human/user, visuals_only = FALSE)
+	pre_equip(user, visuals_only)
 
 	//Start with uniform,suit,backpack for additional slots
 	if(uniform)
@@ -203,7 +203,7 @@
 		EQUIP_OUTFIT_ITEM(back, ITEM_SLOT_BACK)
 	if(id)
 		EQUIP_OUTFIT_ITEM(id, ITEM_SLOT_ID)
-	if(!visualsOnly && id_trim && user.wear_id)
+	if(!visuals_only && id_trim && user.wear_id)
 		var/obj/item/card/id/id_card = user.wear_id
 		if(!istype(id_card)) //If an ID wasn't found in their ID slot, it's probably something holding their ID like a wallet or PDA
 			id_card = locate() in user.wear_id
@@ -213,7 +213,7 @@
 			if(id_trim)
 				if(!SSid_access.apply_trim_to_card(id_card, id_trim))
 					WARNING("Unable to apply trim [id_trim] to [id_card] in outfit [name].")
-				user.sec_hud_set_ID()
+				user.update_ID_card()
 
 	if(suit_store)
 		EQUIP_OUTFIT_ITEM(suit_store, ITEM_SLOT_SUITSTORE)
@@ -226,8 +226,6 @@
 
 	if(socks)
 		user.socks = initial(socks.name)
-
-
 	// NOVA EDIT ADDITION START - Underwear and bra split
 	if(bra)
 		user.bra = initial(bra.name)
@@ -241,11 +239,11 @@
 			WARNING("Unable to equip accessory [accessory] in outfit [name]. No uniform present!")
 
 	if(l_hand)
-		user.put_in_l_hand(SSwardrobe.provide_type(l_hand, user))
+		user.put_in_l_hand(SSwardrobe.provide_type(l_hand, user), visuals_only = visuals_only)
 	if(r_hand)
-		user.put_in_r_hand(SSwardrobe.provide_type(r_hand, user))
+		user.put_in_r_hand(SSwardrobe.provide_type(r_hand, user), visuals_only = visuals_only)
 
-	if(!visualsOnly) // Items in pockets or backpack don't show up on mob's icon.
+	if(!visuals_only) // Items in pockets or backpack don't show up on mob's icon.
 		if(l_pocket)
 			EQUIP_OUTFIT_ITEM(l_pocket, ITEM_SLOT_LPOCKET)
 		if(r_pocket)
@@ -263,7 +261,7 @@
 				if(!isnum(number))//Default to 1
 					number = 1
 				for(var/i in 1 to number)
-					EQUIP_OUTFIT_ITEM(path, ITEM_SLOT_BACKPACK)
+					user.equip_to_storage(SSwardrobe.provide_type(path, user), ITEM_SLOT_BACK, indirect_action = TRUE, del_on_fail = TRUE)
 
 		if(belt_contents)
 			for(var/path in belt_contents)
@@ -271,11 +269,11 @@
 				if(!isnum(number))//Default to 1
 					number = 1
 				for(var/i in 1 to number)
-					EQUIP_OUTFIT_ITEM(path, ITEM_SLOT_BELTPACK)
+					user.equip_to_storage(SSwardrobe.provide_type(path, user), ITEM_SLOT_BELT, indirect_action = TRUE, del_on_fail = TRUE)
 
-	post_equip(user, visualsOnly)
+	post_equip(user, visuals_only)
 
-	if(!visualsOnly)
+	if(!visuals_only)
 		apply_fingerprints(user)
 		if(internals_slot)
 			if(internals_slot & ITEM_SLOT_HANDS)
@@ -357,7 +355,7 @@
 		item.add_fingerprint(user, ignoregloves = TRUE)
 	return TRUE
 
-//NOVA EDIT
+// NOVA EDIT ADDITION START
 /**
  * Copies the outfit from a human to itself.
  **/
@@ -389,8 +387,8 @@
 	if(H.belt)
 		belt = H.belt.type
 	return TRUE
-// NOVA EDIT END
 
+// NOVA EDIT ADDITION END
 /// Return a list of all the types that are required to disguise as this outfit type
 /datum/outfit/proc/get_chameleon_disguise_info()
 	var/list/types = list(uniform, suit, back, belt, gloves, shoes, head, mask, neck, ears, glasses, id, l_pocket, r_pocket, suit_store, r_hand, l_hand)
@@ -440,8 +438,7 @@
 		preload += implant_type
 	for(var/skillpath in skillchips)
 		preload += skillpath
-
-	preload -= typesof(/obj/item/clothing/under/color/random, /obj/item/camera) // NOVA EDIT - Don't preload random jumpsuit spawners that delete themselves
+	preload -= typesof(/obj/item/clothing/under/color/random, /obj/item/camera) // NOVA EDIT ADDITION - Don't preload random jumpsuit spawners that delete themselves
 
 	return preload
 
@@ -547,7 +544,7 @@
 	for(var/item in beltpack)
 		var/itype = text2path(item)
 		if(itype)
-			belt_contents[itype] = belt[item]
+			belt_contents[itype] = beltpack[item]
 	box = text2path(outfit_data["box"])
 	var/list/impl = outfit_data["implants"]
 	implants = list()

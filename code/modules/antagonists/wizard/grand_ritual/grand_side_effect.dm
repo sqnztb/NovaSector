@@ -109,7 +109,8 @@
 		if (can_create[create_path] == 0)
 			continue
 		can_create[create_path] = can_create[create_path] - 1
-		new create_path(pick(anomaly_positions), /*new_lifespan = */rand(15 SECONDS, 30 SECONDS), /*drops_core = */FALSE)
+		var/obj/effect/anomaly/target = new create_path(pick(anomaly_positions), /*new_lifespan = */rand(15 SECONDS, 30 SECONDS))
+		QDEL_NULL(target.anomaly_core)
 		to_create--
 
 #undef MIN_ANOMALIES_CREATED
@@ -122,7 +123,7 @@
 /datum/grand_side_effect/emp/trigger(potency, turf/ritual_location, mob/invoker)
 	var/heavy = LERP(0, 3, potency/GRAND_RITUAL_FINALE_COUNT)
 	var/light = LERP(3, 6, potency/GRAND_RITUAL_FINALE_COUNT)
-	empulse(ritual_location, heavy, light)
+	empulse(ritual_location, heavy, light, emp_source = src)
 
 /// Swap locations of nearby mobs arbitrarily and confuse them
 /datum/grand_side_effect/translocate
@@ -352,10 +353,10 @@
 	/// Typepaths of mobs to create
 	var/static/list/permitted_mobs = list(
 		/mob/living/basic/carp,
+		/mob/living/basic/illusion,
 		/mob/living/basic/killer_tomato,
 		/mob/living/basic/skeleton,
 		/mob/living/basic/wumborian_fugu,
-		/mob/living/simple_animal/hostile/illusion,
 		/mob/living/simple_animal/hostile/ooze,
 	)
 

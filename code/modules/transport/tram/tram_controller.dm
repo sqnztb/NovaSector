@@ -54,7 +54,7 @@
 	var/recovery_clear_count = 0
 
 	///if the tram's next stop will be the tram malfunction event sequence
-	var/malf_active = FALSE
+	var/malf_active = TRANSPORT_SYSTEM_NORMAL
 
 	///fluff information of the tram, such as ongoing kill count and age
 	var/datum/tram_mfg_info/tram_registration
@@ -89,7 +89,7 @@
 	else
 		serial_number = "LT306TG[rand(000000, 999999)]"
 
-	mfg_date = "[CURRENT_STATION_YEAR]-[time2text(world.timeofday, "MM-DD")]"
+	mfg_date = "[CURRENT_STATION_YEAR]-[time2text(world.timeofday, "MM-DD", NO_TIMEZONE)]"
 	install_location = specific_transport_id
 
 /datum/tram_mfg_info/proc/load_from_json(list/json_data)
@@ -144,7 +144,7 @@
 	tram_registration.active = FALSE
 	SSblackbox.record_feedback("amount", "tram_destroyed", 1)
 	SSpersistence.save_tram_history(specific_transport_id)
-	..()
+	return ..()
 
 /**
  * Register transport modules to the controller
@@ -200,7 +200,7 @@
 	SIGNAL_HANDLER
 
 	travel_remaining = 0
-	bumped_atom.visible_message(span_userdanger("The [bumped_atom.name] crashes into the field violently!"))
+	bumped_atom.visible_message(span_userdanger("\The [bumped_atom] crashes into the field violently!"))
 	for(var/obj/structure/transport/linear/tram/transport_module as anything in transport_modules)
 		transport_module.set_travelling(FALSE)
 		for(var/explosive_target in transport_module.transport_contents)
@@ -259,14 +259,16 @@
 		playsound(paired_cabinet, 'sound/machines/synth/synth_yes.ogg', 40, vary = FALSE, extrarange = SHORT_RANGE_SOUND_EXTRARANGE)
 		paired_cabinet.say("Controller reset.")
 
-	if(malf_active)
-		addtimer(CALLBACK(src, PROC_REF(announce_malf_event)), 1 SECONDS)
-
 	SEND_SIGNAL(src, COMSIG_TRAM_TRAVEL, idle_platform, destination_platform)
 
 	for(var/obj/structure/transport/linear/tram/transport_module as anything in transport_modules) //only thing everyone needs to know is the new location.
 		if(transport_module.travelling) //wee woo wee woo there was a double action queued. damn multi tile structs
 			return //we don't care to undo cover_locked controls, though, as that will resolve itself
+		if(malf_active == TRANSPORT_LOCAL_WARNING)
+			if(transport_module.check_for_humans())
+				throw_chance *= 1.75
+				malf_active = TRANSPORT_LOCAL_FAULT
+				addtimer(CALLBACK(src, PROC_REF(announce_malf_event)), 1 SECONDS)
 		transport_module.verify_transport_contents()
 		transport_module.glide_size_override = DELAY_TO_GLIDE_SIZE(speed_limiter)
 		transport_module.set_travelling(TRUE)
@@ -296,7 +298,7 @@
 		return PROCESS_KILL
 
 	if(!travel_remaining)
-		if(!controller_operational || malf_active)
+		if(!controller_operational || malf_active == TRANSPORT_LOCAL_FAULT)
 			degraded_stop()
 		else
 			normal_stop()
@@ -370,10 +372,10 @@
 		paired_cabinet.say("Controller reset.")
 		log_transport("TC: [specific_transport_id] position data successfully reset. ")
 		speed_limiter = initial(speed_limiter)
-	if(malf_active)
+	if(malf_active == TRANSPORT_LOCAL_FAULT)
 		set_status_code(SYSTEM_FAULT, TRUE)
 		addtimer(CALLBACK(src, PROC_REF(cycle_doors), CYCLE_OPEN), 2 SECONDS)
-		malf_active = FALSE
+		malf_active = TRANSPORT_SYSTEM_NORMAL
 		throw_chance = initial(throw_chance)
 		playsound(paired_cabinet, 'sound/machines/buzz/buzz-sigh.ogg', 60, vary = FALSE, extrarange = SHORT_RANGE_SOUND_EXTRARANGE)
 		paired_cabinet.say("Controller error. Please contact your engineering department.")
@@ -417,6 +419,7 @@
  * Performs a reset of the tram's position data by finding a predetermined reference landmark, then driving to it.
  */
 /datum/transport_controller/linear/tram/proc/reset_position()
+	malf_active = TRANSPORT_SYSTEM_NORMAL
 	if(idle_platform)
 		if(get_turf(idle_platform) == get_turf(nav_beacon))
 			set_status_code(SYSTEM_FAULT, FALSE)
@@ -602,7 +605,8 @@
  * Tram malfunction random event. Set comm error, requiring engineering or AI intervention.
  */
 /datum/transport_controller/linear/tram/proc/start_malf_event()
-	malf_active = TRUE
+	malf_active = TRANSPORT_LOCAL_WARNING
+	paired_cabinet.update_appearance()
 	throw_chance *= 1.25
 	log_transport("TC: [specific_transport_id] starting Tram Malfunction event.")
 
@@ -615,7 +619,8 @@
 /datum/transport_controller/linear/tram/proc/end_malf_event()
 	if(!(malf_active))
 		return
-	malf_active = FALSE
+	malf_active = TRANSPORT_SYSTEM_NORMAL
+	paired_cabinet.update_appearance()
 	throw_chance = initial(throw_chance)
 	log_transport("TC: [specific_transport_id] ending Tram Malfunction event.")
 
@@ -840,7 +845,7 @@
 		. += span_notice("The cabinet can be opened with a [EXAMINE_HINT("Left-click.")]")
 
 
-/obj/machinery/transport/tram_controller/attackby(obj/item/weapon, mob/living/user, params)
+/obj/machinery/transport/tram_controller/attackby(obj/item/weapon, mob/living/user, list/modifiers, list/attack_modifiers)
 	if(user.combat_mode || cover_open)
 		return ..()
 
@@ -938,10 +943,10 @@
 	var/turf/drop_location = find_obstruction_free_location(1, src)
 
 	if(disassembled)
-		new /obj/item/wallframe/tram/controller(drop_location)
+		new /obj/item/wallframe/tram(drop_location)
 	else
 		new /obj/item/stack/sheet/mineral/titanium(drop_location, 2)
-		new /obj/item/stack/sheet/iron(drop_location, 1)
+		new /obj/item/stack/sheet/iron(drop_location)
 
 /**
  * Update the blinky lights based on the controller status, allowing to quickly check without opening up the cabinet.
@@ -978,7 +983,7 @@
 		. += emissive_appearance(icon, "[base_icon_state]-estop", src, alpha = src.alpha)
 		return
 
-	if(controller_datum.controller_status & SYSTEM_FAULT || controller_datum.malf_active)
+	if(controller_datum.controller_status & SYSTEM_FAULT || controller_datum.malf_active != TRANSPORT_SYSTEM_NORMAL)
 		. += mutable_appearance(icon, "[base_icon_state]-fault")
 		. += emissive_appearance(icon, "[base_icon_state]-fault", src, alpha = src.alpha)
 		return
@@ -1079,7 +1084,7 @@
 		"recoveryMode" = controller_datum.recovery_mode,
 		"currentSpeed" = controller_datum.current_speed,
 		"currentLoad" = controller_datum.current_load,
-		"statusSF" = controller_datum.controller_status & SYSTEM_FAULT,
+		"statusSF" = controller_datum.controller_status & SYSTEM_FAULT || controller_datum.malf_active != TRANSPORT_SYSTEM_NORMAL,
 		"statusCE" = controller_datum.controller_status & COMM_ERROR,
 		"statusES" = controller_datum.controller_status & EMERGENCY_STOP,
 		"statusPD" = controller_datum.controller_status & PRE_DEPARTURE,
@@ -1147,7 +1152,7 @@
 /// Controller that sits in the telecoms room
 /obj/machinery/transport/tram_controller/tcomms
 	name = "tram central controller"
-	desc = "This semi-conductor is half of the brains controlling the tram and its auxillary equipment."
+	desc = "This semiconductor is half of the brains controlling the tram and its auxiliary equipment."
 	icon_state = "home-controller"
 	base_icon_state = "home"
 	density = TRUE
@@ -1185,11 +1190,23 @@
 	controller_datum.set_home_controller(src)
 	RegisterSignal(SStransport, COMSIG_TRANSPORT_ACTIVE, PROC_REF(sync_controller))
 
-/obj/item/wallframe/tram/controller
+/obj/item/wallframe/tram
 	name = "tram controller cabinet"
 	desc = "A box that contains the equipment to control a tram. Just secure to the tram wall."
 	icon = 'icons/obj/tram/tram_controllers.dmi'
 	icon_state = "tram-controller"
-	custom_materials = list(/datum/material/titanium = SHEET_MATERIAL_AMOUNT * 4, /datum/material/iron = SHEET_MATERIAL_AMOUNT * 2, /datum/material/glass = SHEET_MATERIAL_AMOUNT * 2)
+	custom_materials = list(/datum/material/iron = SHEET_MATERIAL_AMOUNT * 20)
 	result_path = /obj/machinery/transport/tram_controller
 	pixel_shift = 32
+
+/obj/item/wallframe/tram/find_support_structure(atom/structure)
+	return astype(structure, /obj/structure/tram)
+
+/obj/item/wallframe/tram/try_build(obj/structure/tram/on_tram, mob/user)
+	var/turf/tram_turf = get_turf(user)
+	var/obj/structure/thermoplastic/tram_floor = locate() in tram_turf
+	if(!istype(tram_floor))
+		balloon_alert(user, "needs tram!")
+		return FALSE
+
+	return ..()

@@ -1,20 +1,22 @@
 /obj/item/clothing/erp_leash
 	name = "leash"
 	desc = "A guiding hand's best friend; in a sleek, semi-elastic package. Can either clip to a collar or be affixed to the neck on its own."
-	icon = 'modular_nova/modules/modular_items/lewd_items/icons/obj/lewd_clothing/lewd_belts.dmi'
 	worn_icon = 'modular_nova/modules/modular_items/lewd_items/icons/mob/lewd_clothing/lewd_belts.dmi'
-	icon_state = "neckleash_pink"
+	greyscale_colors = "#383840#dc7ef4#d1d3e0"
+	icon = 'icons/map_icons/clothing/_clothing.dmi'
+	icon_state = "/obj/item/clothing/erp_leash"
+	post_init_icon_state = "neckleash"
+	greyscale_config = /datum/greyscale_config/neckleash
+	greyscale_config_worn = /datum/greyscale_config/neckleash/worn
 	equip_sound = 'sound/items/equip/toolbelt_equip.ogg'
 	drop_sound = 'sound/items/handling/toolbelt_drop.ogg'
 	slot_flags = ITEM_SLOT_BELT
+	obj_flags_nova = ERP_ITEM
 	breakouttime = 3 SECONDS
+	flags_1 = IS_PLAYER_COLORABLE_1
+
 	/// Weakref to the leash component we're using, if it exists.
 	var/datum/weakref/our_leash_component
-
-	unique_reskin = list(
-		"Pink" = "neckleash_pink",
-		"Teal" = "neckleash_teal",
-	)
 
 	COOLDOWN_DECLARE(tug_cd)
 
@@ -66,7 +68,6 @@
 
 /datum/component/leash/erp
 	dupe_mode = COMPONENT_DUPE_UNIQUE
-	dupe_type = /datum/component/leash
 
 // 'owner' refers the leash item, while 'parent' refers to the one it's affixed to.
 /datum/component/leash/erp/RegisterWithParent()
@@ -104,7 +105,7 @@
 		if(istype(parent, /mob/living))
 			var/mob/living/yoinked = parent
 			yoinked.Move(get_step_towards(yoinked,user))
-			yoinked.adjustStaminaLoss(10)
+			yoinked.adjust_stamina_loss(10)
 			yoinked.visible_message(span_warning("[yoinked] is pulled in as [user] tugs the [source]!"),\
 					span_userdanger("[user] suddenly tugs the [source], pulling you closer!"),\
 					span_userdanger("A sudden tug against your neck pulls you ahead!"))

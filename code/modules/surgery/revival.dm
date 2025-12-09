@@ -111,7 +111,7 @@
 		span_notice("[user] send a powerful shock to [target]'s brain with [tool]..."),
 	)
 	target.grab_ghost()
-	target.adjustOxyLoss(-50)
+	target.adjust_oxy_loss(-50)
 	if(iscarbon(target))
 		var/mob/living/carbon/carbon_target = target
 		carbon_target.set_heartattack(FALSE)
@@ -153,15 +153,15 @@
 	surgery_flags = parent_type::surgery_flags | SURGERY_REQUIRE_LIMB
 
 /datum/surgery/revival/carbon/is_valid_target(mob/living/carbon/patient)
-	var/obj/item/organ/internal/brain/target_brain = patient.get_organ_slot(ORGAN_SLOT_BRAIN)
+	var/obj/item/organ/brain/target_brain = patient.get_organ_slot(ORGAN_SLOT_BRAIN)
 	return !isnull(target_brain)
 
 /datum/surgery_step/revive/carbon
 
 /datum/surgery_step/revive/carbon/on_revived(mob/surgeon, mob/living/patient)
 	. = ..()
-	patient.adjustOrganLoss(ORGAN_SLOT_BRAIN, 50, 199) // MAD SCIENCE
+	patient.adjust_organ_loss(ORGAN_SLOT_BRAIN, 50, 199) // MAD SCIENCE
 
 /datum/surgery_step/revive/carbon/failure(mob/user, mob/living/carbon/target, target_zone, obj/item/tool, datum/surgery/surgery)
 	. = ..()
-	target.adjustOrganLoss(ORGAN_SLOT_BRAIN, 15, 180)
+	target.adjust_organ_loss(ORGAN_SLOT_BRAIN, 15, 180)
