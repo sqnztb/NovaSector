@@ -13,6 +13,10 @@ Format:
 	votable (is this map votable)
 endmap
 
+map homecabin
+	votable
+endmap
+
 # Production-level maps.
 
 map birdshot
@@ -85,5 +89,8 @@ map serenitystation
 endmap
 
 map homecabin
+endmap
+
+map snowglobe
 	votable
 endmap

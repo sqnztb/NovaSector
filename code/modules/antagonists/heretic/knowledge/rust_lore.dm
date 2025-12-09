@@ -1,6 +1,5 @@
 /**
  * # The path of Rust.
- * Spell names are in this language: OLD SLAVIC
  *
  * Goes as follows:
  *
@@ -177,6 +176,8 @@
 	our_heretic.increase_rust_strength()
 
 /datum/heretic_knowledge/blade_upgrade/rust/do_melee_effects(mob/living/source, mob/living/target, obj/item/melee/sickly_blade/blade)
+	if(source == target || !isliving(target))
+		return
 	target.adjust_disgust(50)
 
 /datum/heretic_knowledge/spell/area_conversion/on_gain(mob/user, datum/antagonist/heretic/our_heretic)
@@ -199,7 +200,7 @@
 
 /datum/heretic_knowledge/spell/entropic_plume/on_gain(mob/user)
 	. = ..()
-	var/datum/antagonist/heretic/our_heretic = IS_HERETIC(user)
+	var/datum/antagonist/heretic/our_heretic = GET_HERETIC(user)
 	our_heretic.increase_rust_strength(TRUE)
 
 /datum/heretic_knowledge/ultimate/rust_final
@@ -256,8 +257,8 @@
 	priority_announce(
 		text = "[generate_heretic_text()] Fear the decay, for the Rustbringer, [user.real_name] has ascended! None shall escape the corrosion! [generate_heretic_text()]",
 		title = "[generate_heretic_text()]",
-		sound = 'sound/ambience/antag/heretic/ascend_rust.ogg',
-		color_override = "brown",
+		sound = 'sound/music/antag/heretic/ascend_rust.ogg',
+		color_override = "pink",
 	)
 	trigger(loc)
 	RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(on_move))

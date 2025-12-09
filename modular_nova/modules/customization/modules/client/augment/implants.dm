@@ -24,6 +24,10 @@
 /datum/augment_item/implant/l_arm
 	slot = AUGMENT_SLOT_LEFT_ARM_IMPLANT
 
+/datum/augment_item/implant/l_arm/charging_implant
+	name = "Left Charging Cord Implant"
+	path = /obj/item/organ/internal/cyberimp/arm/power_cord
+
 /datum/augment_item/implant/l_arm/civilian_lighter
 	name = "Left Thumbtip Lighter"
 	cost = 2
@@ -70,7 +74,7 @@
 	path = /obj/item/organ/internal/cyberimp/arm/arc_welder/left_arm
 
 /datum/augment_item/implant/l_arm/electrical_toolset
-	name = "Left Electrical Toolset Implant (Screwdriver + Multitool)"
+	name = "Left Electrical Toolset Implant (Screwdriver + Multitool + Wirecutters)"
 	cost = 8
 	path = /obj/item/organ/internal/cyberimp/arm/electrical_toolset/left_arm
 
@@ -82,6 +86,10 @@
 //RIGHT ARM IMPLANTS
 /datum/augment_item/implant/r_arm
 	slot = AUGMENT_SLOT_RIGHT_ARM_IMPLANT
+
+/datum/augment_item/implant/r_arm/charging_implant
+	name = "Right Charging Cord Implant"
+	path = /obj/item/organ/internal/cyberimp/arm/power_cord/right_arm
 
 /datum/augment_item/implant/r_arm/civilian_lighter
 	name = "Right Thumbtip Lighter"
@@ -129,7 +137,7 @@
 	path = /obj/item/organ/internal/cyberimp/arm/arc_welder/right_arm
 
 /datum/augment_item/implant/r_arm/electrical_toolset
-	name = "Right Electrical Toolset Implant (Screwdriver + Multitool)"
+	name = "Right Electrical Toolset Implant (Screwdriver + Multitool + Wirecutters)"
 	cost = 8
 	path = /obj/item/organ/internal/cyberimp/arm/electrical_toolset/right_arm
 

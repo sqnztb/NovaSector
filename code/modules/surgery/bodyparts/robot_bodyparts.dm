@@ -124,8 +124,8 @@
 	if (severity == EMP_HEAVY)
 		knockdown_time *= 2
 	owner.Knockdown(knockdown_time)
-	if(owner.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB)) // So the message isn't duplicated. If they were stunned beforehand by something else, then the message not showing makes more sense anyways.
-		return FALSE
+	if(INCAPACITATED_IGNORING(owner, INCAPABLE_RESTRAINTS|INCAPABLE_GRAB)) // So the message isn't duplicated. If they were stunned beforehand by something else, then the message not showing makes more sense anyways.
+		return
 	to_chat(owner, span_danger("As your [plaintext_zone] unexpectedly malfunctions, it causes you to fall to the ground!"))
 	return
 
@@ -173,8 +173,8 @@
 	if (severity == EMP_HEAVY)
 		knockdown_time *= 2
 	owner.Knockdown(knockdown_time)
-	if(owner.incapacitated(IGNORE_RESTRAINTS|IGNORE_GRAB)) // So the message isn't duplicated. If they were stunned beforehand by something else, then the message not showing makes more sense anyways.
-		return FALSE
+	if(INCAPACITATED_IGNORING(owner, INCAPABLE_RESTRAINTS|INCAPABLE_GRAB)) // So the message isn't duplicated. If they were stunned beforehand by something else, then the message not showing makes more sense anyways.
+		return
 	to_chat(owner, span_danger("As your [plaintext_zone] unexpectedly malfunctions, it causes you to fall to the ground!"))
 	return
 
@@ -277,7 +277,7 @@
 
 	if(all_robotic)
 		owner.add_traits(list(
-			/* NOVA EDIT REMOVAL BEGIN - Synths are not immune to temperature
+			/* NOVA EDIT REMOVAL BEGIN - You are not immune to temperature
 			TRAIT_RESISTCOLD,
 			TRAIT_RESISTHEAT,
 			NOVA EDIT REMOVAL END */
@@ -286,7 +286,7 @@
 			), AUGMENTATION_TRAIT)
 	else
 		owner.remove_traits(list(
-			/* NOVA EDIT REMOVAL BEGIN - Synths are not immune to temperature
+			/* NOVA EDIT REMOVAL BEGIN - You are not immune to temperature
 			TRAIT_RESISTCOLD,
 			TRAIT_RESISTHEAT,
 			NOVA EDIT REMOVAL END */

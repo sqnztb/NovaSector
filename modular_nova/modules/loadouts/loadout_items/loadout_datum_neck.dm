@@ -225,6 +225,10 @@
 	name = "Mantle"
 	item_path = /obj/item/clothing/neck/mantle
 
+/datum/loadout_item/neck/tesharian_mantle
+	name = "Tesharian Mantle"
+	item_path = /obj/item/clothing/neck/tesharian_mantle
+
 /datum/loadout_item/neck/mantle_qm
 	name = "Quartermaster's Mantle"
 	item_path = /obj/item/clothing/neck/mantle/qm
@@ -286,6 +290,10 @@
 /datum/loadout_item/neck/maid
 	name = "Maid Neck Cover"
 	item_path = /obj/item/clothing/neck/maid
+
+/datum/loadout_item/neck/colonial_cloak
+	name = "Colonial Cloak"
+	item_path = /obj/item/clothing/neck/cloak/colonial
 
 /datum/loadout_item/neck/imperial_police_cloak
 	name = "Imperial Police Cloak"
