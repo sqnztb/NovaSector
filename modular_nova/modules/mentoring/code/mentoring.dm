@@ -50,10 +50,10 @@
 	)
 
 	/// Tracks reading progress per user (by ckey) so they can resume if interrupted
-	var/list/reading_progress = list()
+	var/list/reading_progress
 
 	/// Tracks writing progress per user (by ckey) so they can resume if interrupted
-	var/list/writing_progress = list()
+	var/list/writing_progress
 
 	var/static/list/learning_sentences = list(
 		"You look at the new word and try to gain context...",
@@ -153,17 +153,17 @@
  */
 /obj/item/mentoring_book/proc/do_progress_loop(mob/user, list/progress_list, list/sentence_list, iterations = 5, time_per_iteration = 60 SECONDS, resume_message = "You resume from where you left off...")
 	var/user_key = user.ckey || REF(user)
-	var/starting_iteration = progress_list[user_key] || 1
+	var/starting_iteration = LAZYACCESS(progress_list, user_key) || 1
 
 	if(starting_iteration > 1)
 		to_chat(user, span_notice(resume_message))
 
 	for(var/current_iteration in starting_iteration to iterations)
 		if(!timed_sentence(user, pick(sentence_list), time_per_iteration))
-			progress_list[user_key] = current_iteration
+			LAZYSET(progress_list, user_key, current_iteration)
 			return FALSE
 
-	progress_list -= user_key // Clear progress on completion
+	LAZYREMOVE(progress_list, user_key) // Clear progress on completion
 	return TRUE
 
 /obj/item/mentoring_book/attack_self(mob/user, modifiers)
@@ -178,7 +178,7 @@
 			return
 
 		var/user_key = user.ckey || REF(user)
-		var/starting_iteration = reading_progress[user_key] || 0
+		var/starting_iteration = LAZYACCESS(reading_progress, user_key) || 0
 		var/learning_exp = 10 + (starting_iteration * 5) // Resume exp calculation from saved progress
 		var/current_iteration = starting_iteration
 
@@ -187,7 +187,7 @@
 
 		while(user_level < author_level)
 			if(!timed_sentence(user, pick(learning_sentences), 60 SECONDS))
-				reading_progress[user_key] = current_iteration
+				LAZYSET(reading_progress, user_key, current_iteration)
 				if(current_iteration > 0) // don't consume any charges if we have not gained any xp yet.
 					check_limit(user)
 				return
@@ -196,7 +196,7 @@
 			learning_exp += 5 //this means that it won't take 40 minutes to get from beginner to master... I definitely wouldn't know ;-;
 			current_iteration++
 
-		reading_progress -= user_key // Clear progress on completion
+		LAZYREMOVE(reading_progress, user_key) // Clear progress on completion
 		to_chat(user, span_notice("You have learned all you can learn from [src]."))
 		check_limit(user)
 		return
