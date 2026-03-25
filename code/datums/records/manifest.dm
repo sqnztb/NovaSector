@@ -36,10 +36,6 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 		var/name = target.name
 		var/rank = target.rank // user-visible job
 		var/trim = target.trim // internal jobs by trim type
-		// NOVA EDIT ADDITION START - bare minimum data the station records need to possess to show up on the crew manifest
-		if((name == "Unknown") || (rank == "Unassigned" || rank == "Unknown")) // records are unassigned by default, but if edited without input becomes unknown
-			continue
-		// NOVA EDIT ADDITION END
 		var/datum/job/job = SSjob.get_job(trim)
 		if(!job || !(job.job_flags & JOB_CREW_MANIFEST) || !LAZYLEN(job.departments_list)) // In case an unlawful custom rank is added.
 			var/list/misc_list = manifest_out[DEPARTMENT_UNASSIGNED]
@@ -111,10 +107,6 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 	set waitfor = FALSE
 	if(!(person.mind?.assigned_role.job_flags & JOB_CREW_MANIFEST))
 		return
-	// NOVA EDIT ADDITION START - Visitor ID -> no manifest
-	if(person.has_quirk(/datum/quirk/visitor) || ("Visitor ID" in person_client?.prefs.all_quirks))
-		return inject_guest(person, person_client)
-	// NOVA EDIT ADDITION END
 
 	// Attempt to get assignment from ID, otherwise default to mind.
 	var/obj/item/card/id/id_card = person.get_idcard(hand_first = FALSE)

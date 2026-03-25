@@ -9,7 +9,6 @@
 /obj/structure/closet/secure_closet/hop/PopulateContents()
 	..()
 	new /obj/item/card/id/departmental_budget/srv(src)
-	new /obj/item/storage/box/visitor_ids(src)
 
 /obj/structure/closet/secure_closet/hos/PopulateContents()
 	..()

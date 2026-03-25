@@ -36,7 +36,7 @@
 	var/obj/item/card/id/id_card = locate() in ninja.belt
 	var/obj/item/storage/penkit = ninja.get_item_by_slot(ITEM_SLOT_LPOCKET)
 	if(id_card)
-		SSid_access.apply_trim_to_card(id_card, /datum/id_trim/job/assistant/visitor)
+		SSid_access.apply_trim_to_card(id_card, /datum/id_trim/job/assistant)
 		id_card.registered_name = "[pick(GLOB.first_names)] [pick(GLOB.last_names)]"
 		id_card.update_label()
 		id_card.update_appearance()
@@ -73,7 +73,7 @@
 	new /obj/item/food/vendor_snacks/rice_crackers(src)
 	new /obj/item/stock_parts/power_store/cell/hyper(src)
 	new /obj/item/stack/spacecash/c200(src)
-	new /obj/item/card/id/advanced/visitor(src) //keep last for quick keys
+	new /obj/item/card/id/advanced(src) //keep last for quick keys
 
 /obj/item/radio/headset/ninja
 	name = "\improper Spider-Clan radio headset"
