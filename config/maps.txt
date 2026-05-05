@@ -98,3 +98,7 @@ endmap
 map snowglobe
 	votable
 endmap
+
+map oceanpubby
+    votable
+endmap
