@@ -14,6 +14,7 @@
 	mutantstomach = /obj/item/organ/stomach/slime
 	mutantbrain = /obj/item/organ/brain/slime
 	mutantears = /obj/item/organ/ears/jelly
+	mutantappendix = null // Slimes have no Appendix
 	inherent_traits = list(
 		TRAIT_MUTANT_COLORS,
 		TRAIT_TOXINLOVER,
@@ -39,6 +40,7 @@
 		slime_hydrophobia.Grant(new_jellyperson)
 		core_signal = new
 		core_signal.Grant(new_jellyperson)
+	RegisterSignal(new_jellyperson, COMSIG_LIVING_LIFE, PROC_REF(on_life))
 
 /datum/species/jelly/on_species_loss(mob/living/carbon/former_jellyperson, datum/species/new_species, pref_load)
 	. = ..()
@@ -50,6 +52,7 @@
 		slime_hydrophobia.Remove(former_jellyperson)
 	if(core_signal)
 		core_signal.Remove(former_jellyperson)
+	UnregisterSignal(former_jellyperson, COMSIG_LIVING_LIFE)
 
 /datum/species/jelly/get_default_mutant_bodyparts()
 	return list(
@@ -355,8 +358,8 @@
 
 // HEALING SECTION
 // Handles passive healing and water damage for slimes and water-breathing variants.
-/datum/species/jelly/spec_life(mob/living/carbon/human/slime, seconds_per_tick)
-	. = ..()
+/datum/species/jelly/proc/on_life(mob/living/carbon/human/slime, seconds_per_tick)
+	SIGNAL_HANDLER
 
 	// Skip if unconscious
 	if(slime.stat != CONSCIOUS)
@@ -839,14 +842,14 @@
 		switch(hair_reset)
 			if("Hair")
 				alterer.hair_color = sanitize_hexcolor(new_mutant_colour)
-				alterer.update_body_parts()
+				alterer.update_hair()
 			if("Facial Hair")
 				alterer.facial_hair_color = sanitize_hexcolor(new_mutant_colour)
-				alterer.update_body_parts()
+				alterer.update_hair()
 			if("Both")
 				alterer.hair_color = sanitize_hexcolor(new_mutant_colour)
 				alterer.facial_hair_color = sanitize_hexcolor(new_mutant_colour)
-				alterer.update_body_parts()
+				alterer.update_hair()
 
 	alterer.update_body(is_creating = TRUE)
 
