@@ -289,6 +289,7 @@ def _synth_config_fingerprint() -> str:
     )
 
 def synthesize_text_wav_cached(voice: VoiceDefinition, text: str) -> bytes:
+    source = resolve_source(voice.source, VOICE_CONFIG_PATH)
     if SYNTH_CACHE_VARIANTS <= 0:
         return synthesize_text_wav(voice, text)
 

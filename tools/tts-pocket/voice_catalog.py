@@ -78,7 +78,7 @@ def save_catalog(path: Path, voices: list[VoiceDefinition]) -> None:
 
 
 def resolve_source(source: str, catalog_path: Path) -> str:
-    if _is_remote_or_builtin(source):
+    if _is_remote_or_builtin(source, catalog_path):
         return source
 
     source_path = Path(source)
@@ -129,11 +129,11 @@ def _normalize(raw_voices: Any) -> list[VoiceDefinition]:
     return voices
 
 
-def _is_remote_or_builtin(source: str) -> bool:
+def _is_remote_or_builtin(source: str, catalog_path: Path) -> bool:
     lower_source = source.lower()
     if lower_source.startswith(("hf://", "http://", "https://")):
         return True
     candidate = Path(source)
     if not candidate.is_absolute():
-        candidate = _catalog_dir / candidate  # pass catalog_path in, same as resolve_source
+        candidate = catalog_path.parent / candidate
     return not candidate.exists()
