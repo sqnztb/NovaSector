@@ -40,5 +40,53 @@
 	target.dna.features[FEATURE_LEGS] = value
 
 	target.update_body()
-	target.dna.species.replace_body(target, target.dna.species) // TODO: Replace this with something less stupidly expensive.
+	// We only record the feature here. Swapping the limbs over is left to reconcile_digitigrade_limbs(), which
+	// apply_prefs_to() calls once the species preference has been applied - this preference runs at
+	// PREFERENCE_PRIORITY_DEFAULT, so target.dna.species is still the *old* species at this point.
+	return TRUE
+
+/**
+ * Returns whether this human's legs should currently be digitigrade.
+ *
+ * Reads the species' digitigrade_customization, falling back to the DNA feature where the species leaves
+ * the choice up to the player.
+ */
+/mob/living/carbon/human/proc/should_have_digitigrade_legs()
+	var/datum/species/our_species = dna?.species
+	if(isnull(our_species))
+		return FALSE
+
+	switch(our_species.digitigrade_customization)
+		if(DIGITIGRADE_FORCED)
+			return TRUE
+		if(DIGITIGRADE_OPTIONAL)
+			return dna.features[FEATURE_LEGS] == DIGITIGRADE_LEGS
+
+	return FALSE
+
+/**
+ * Swaps this human's limbs over when its current leg shape disagrees with what its species and features call for.
+ *
+ * set_species() only reaches replace_body() when the species type actually changes, so a mob that was created
+ * already wearing its final species - every ghost role spawner that sets mob_species - never gets its legs
+ * configured at all. This is the backstop for that.
+ *
+ * Returns TRUE if the body was replaced.
+ */
+/mob/living/carbon/human/proc/reconcile_digitigrade_limbs()
+	if(isnull(dna?.species))
+		return FALSE
+
+	var/has_digitigrade = FALSE
+	for(var/obj/item/bodypart/leg/leg in bodyparts)
+		if(leg.bodyshape & BODYSHAPE_DIGITIGRADE)
+			has_digitigrade = TRUE
+			break
+
+	if(should_have_digitigrade_legs() == has_digitigrade)
+		return FALSE
+
+	// Note that replace_body() can decline to go digitigrade anyway - a synth whose chassis isn't digi compatible,
+	// for one - in which case we'll retry on the next apply_prefs_to(). That's one wasted call, not a loop.
+	dna.species.replace_body(src, dna.species)
 	return TRUE

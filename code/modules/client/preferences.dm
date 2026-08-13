@@ -657,6 +657,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
  */
 /datum/preferences/proc/apply_prefs_to(mob/living/carbon/human/character, icon_updates = TRUE, list/do_not_apply, visuals_only = FALSE) // NOVA EDIT CHANGE - ORIGINAL: /datum/preferences/proc/apply_prefs_to(mob/living/carbon/human/character, icon_updates = TRUE, list/do_not_apply)
 	character.dna.features = MANDATORY_FEATURE_LIST // NOVA EDIT CHANGE - We need to instansiate the list with the basic features. - ORIGINAL: character.dna.features = list()
+	// NOVA EDIT ADDITION START - Mutant bodyparts have to be wiped alongside features.
+	// A mob created directly as its final species - every ghost role spawner that sets mob_species - already
+	// carries that species' randomised default parts, and a preference set to "None" returns early without ever
+	// writing to dna.mutant_bodyparts, so it cannot clear them. Start from a clean slate like a fresh human does.
+	LAZYCLEARLIST(character.dna.mutant_bodyparts)
+	// NOVA EDIT ADDITION END
 
 	for (var/datum/preference/preference as anything in get_preferences_in_priority_order())
 		if (preference.savefile_identifier != PREFERENCE_CHARACTER)
@@ -665,6 +671,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			continue
 
 		preference.apply_to_human(character, read_preference(preference.type), src) // NOVA EDIT CHANGE - ORIGINAL: preference.apply_to_human(character, read_preference(preference.type))
+
+	// NOVA EDIT ADDITION START - Reconcile digitigrade limbs. Defined in
+	// modular_nova/master_files/code/modules/client/preferences/species_features/digitigrade_legs.dm
+	// Has to run after the species preference (PREFERENCE_PRIORITY_SPECIES) so we're looking at the final species,
+	// but before the middleware below applies augments, because replace_body() destroys augmented limbs.
+	character.reconcile_digitigrade_limbs()
+	// NOVA EDIT ADDITION END
 
 	// NOVA EDIT ADDITION START - middleware apply human prefs
 	for (var/datum/preference_middleware/preference_middleware as anything in middleware)

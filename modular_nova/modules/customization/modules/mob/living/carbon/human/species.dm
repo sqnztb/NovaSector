@@ -200,6 +200,15 @@ GLOBAL_LIST_EMPTY(customizable_races)
 			var/obj/item/organ/accessory_organ_type = mutant_accessory.organ_type
 			var/obj/item/organ/current_organ = organ_holder.get_organ_by_type(accessory_organ_type)
 
+			// A mutant organ bakes its appearance in at insertion time (bodypart_overlay/mutant/on_mob_insert) and
+			// nothing re-reads the DNA on update_body(). get_organ_by_type() looks up the type the DNA *wants*, so a
+			// hit here means the organ type is already right and only its baked style/colour is stale - refresh it in
+			// place rather than churning the organ. Without this, preferences applied to a mob that was created already
+			// wearing its final species (every ghost role spawner that sets mob_species) are simply never rendered.
+			if(current_organ && !replace_current && !current_organ.overrides_sprite_datum_organ_type)
+				current_organ.bodypart_overlay?.set_appearance_from_dna(organ_holder.dna, feature_key = key, limb = current_organ.bodypart_owner)
+				current_organ.build_from_dna(organ_holder.dna, key)
+
 			if(!current_organ || replace_current)
 				var/organ_slot = accessory_organ_type::slot
 				var/obj/item/organ/current_organ_in_slot = organ_holder.get_organ_slot(organ_slot)
