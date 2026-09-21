@@ -21,4 +21,7 @@ GLOBAL_LIST_EMPTY(loadout_category_to_subcategory_to_items)
 
 GLOBAL_LIST_EMPTY(augment_items)
 
-GLOBAL_LIST_EMPTY(species_clothing_fallback_cache)
+/// Cache of generated clothing icons per custom bodytype. See `/datum/custom_bodytype`.
+GLOBAL_LIST_EMPTY(custom_bodytype_clothing_cache)
+/// Singleton instances of `/datum/custom_bodytype`, keyed by type. Use `get_custom_bodytype()`.
+GLOBAL_LIST_EMPTY(custom_bodytypes)
