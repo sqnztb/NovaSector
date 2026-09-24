@@ -5,26 +5,43 @@
 	var/datum/greyscale_config/greyscale_config_worn_teshari_fallback
 	var/datum/greyscale_config/greyscale_config_worn_teshari_fallback_skirt
 
-/datum/species/teshari/get_custom_worn_icon(item_slot, obj/item/item)
+/datum/custom_bodytype/teshari
+	name = SPECIES_TESHARI
+	worn_icons = list(
+		LOADOUT_ITEM_HEAD = TESHARI_HEAD_ICON,
+		LOADOUT_ITEM_MASK = TESHARI_MASK_ICON,
+		LOADOUT_ITEM_NECK = TESHARI_NECK_ICON,
+		LOADOUT_ITEM_SUIT = TESHARI_SUIT_ICON,
+		LOADOUT_ITEM_UNIFORM = TESHARI_UNIFORM_ICON,
+		LOADOUT_ITEM_HANDS =  TESHARI_HANDS_ICON,
+		LOADOUT_ITEM_SHOES = TESHARI_FEET_ICON,
+		LOADOUT_ITEM_GLASSES = TESHARI_EYES_ICON,
+		LOADOUT_ITEM_BELT = TESHARI_BELT_ICON,
+		LOADOUT_ITEM_MISC = TESHARI_BACK_ICON,
+		LOADOUT_ITEM_ACCESSORY = TESHARI_ACCESSORIES_ICON,
+		LOADOUT_ITEM_EARS = TESHARI_EARS_ICON
+	)
+
+/datum/custom_bodytype/teshari/get_worn_icon(item_slot, obj/item/item, obj/item/bodypart/limb)
 	return item.worn_icon_teshari
 
-/datum/species/teshari/set_custom_worn_icon(item_slot, obj/item/item, icon/icon)
+/datum/custom_bodytype/teshari/set_worn_icon(item_slot, obj/item/item, icon/icon)
 	item.worn_icon_teshari = icon
 
-/datum/species/teshari/get_custom_worn_config_fallback(item_slot, obj/item/item)
+/datum/custom_bodytype/teshari/get_worn_config_fallback(item_slot, obj/item/item)
 	// skirt support
 	if(istype(item, /obj/item/clothing/under) && !(item.body_parts_covered & LEGS))
 		return item.greyscale_config_worn_teshari_fallback_skirt
 
 	return item.greyscale_config_worn_teshari_fallback
 
-/datum/species/teshari/generate_custom_worn_icon(item_slot, obj/item/item, mob/living/carbon/human/human_owner)
+/datum/custom_bodytype/teshari/generate_worn_icon(item_slot, obj/item/item, mob/living/carbon/human/human_owner, obj/item/bodypart/limb)
 	. = ..()
 	if(.)
 		return
 
 	// Use the fancy fallback sprites.
-	. = generate_custom_worn_icon_fallback(item_slot, item, human_owner)
+	. = generate_worn_icon_fallback(item_slot, item, human_owner)
 	if(.)
 		return
 
@@ -49,8 +66,8 @@
 		//#endif
 
 		// Use already resolved icon
-		use_custom_worn_icon_cached()
-		var/icon/cached_icon = get_custom_worn_icon_cached(human_icon, human_icon_state, "m")
+		use_worn_icon_cache()
+		var/icon/cached_icon = get_worn_icon_cached(human_icon, human_icon_state, "m")
 		if(cached_icon)
 			return cached_icon
 
@@ -59,7 +76,7 @@
 		new_icon.Blend(icon(human_icon, human_icon_state), ICON_OVERLAY, x = selected_offset.offset_x["north"], y = selected_offset.offset_y["north"])
 		new_icon.Insert(new_icon, human_icon_state)
 		new_icon = fcopy_rsc(new_icon)
-		set_custom_worn_icon_cached(human_icon, human_icon_state, "m", new_icon)
+		set_worn_icon_cached(human_icon, human_icon_state, "m", new_icon)
 		return new_icon
 
 #undef MASK_SNOUT_EXTRA_OFFSET_X
