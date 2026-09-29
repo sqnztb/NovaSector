@@ -5,6 +5,8 @@
 	var/current_style = null
 	/// Used for taur limbs that do not get rendered at all
 	VAR_PROTECTED/is_actually_just_invisible = FALSE
+	/// Typepath of the `/datum/custom_bodytype` deciding how clothing is drawn on this limb. Only used with BODYSHAPE_CUSTOM.
+	var/datum/custom_bodytype/custom_bodytype
 
 /obj/item/bodypart/generate_icon_key()
 	RETURN_TYPE(/list)
