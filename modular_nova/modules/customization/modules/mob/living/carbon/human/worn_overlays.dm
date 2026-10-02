@@ -6,8 +6,8 @@
 		return ..()
 
 	var/mob/living/carbon/human/human_wearer = attached_to.loc
-	// list[key] is null when absent, so this covers species with no custom accessory icon too
-	var/icon/custom_accessory_icon = human_wearer.dna.species.custom_worn_icons[LOADOUT_ITEM_ACCESSORY]
+	// Decided by the chest. Null when it has no custom bodytype, or that bodytype has no accessory icon.
+	var/icon/custom_accessory_icon = human_wearer.get_custom_worn_icon_file(LOADOUT_ITEM_ACCESSORY)
 	var/icon_state_to_check_for = icon_state_is_worn ? icon_state : worn_icon_state
 	var/use_custom_icon = custom_accessory_icon && (icon_state_to_check_for in icon_states(custom_accessory_icon))
 
