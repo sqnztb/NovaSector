@@ -102,7 +102,7 @@ There are several things that need to be remembered:
 			icon_file = uniform.worn_icon_digi || DIGITIGRADE_UNIFORM_FILE // NOVA EDIT CHANGE - ORIGINAL: icon_file = DIGITIGRADE_UNIFORM_FILE
 		// NOVA EDIT ADDITION START - birbs
 		else if(bodyshape & BODYSHAPE_CUSTOM)
-			icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_UNIFORM, w_uniform, src) // Might have to refactor how this works eventually, maybe.
+			icon_file = generate_custom_worn_icon(LOADOUT_ITEM_UNIFORM, w_uniform) // Might have to refactor how this works eventually, maybe.
 		// NOVA EDIT ADDITION END
 		//Female sprites have lower priority than digitigrade sprites
 		var/chest_is_dimorphic
@@ -209,7 +209,7 @@ There are several things that need to be remembered:
 	// NOVA EDIT ADDITION START
 	var/mutant_override = FALSE
 	if(bodyshape & BODYSHAPE_CUSTOM)
-		var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_GLOVES, gloves, src)
+		var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_GLOVES, gloves)
 		if(species_icon_file)
 			icon_file = species_icon_file
 			mutant_override = TRUE
@@ -258,7 +258,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_GLASSES, glasses, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_GLASSES, glasses)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -288,7 +288,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_EARS, ears, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_EARS, ears)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -314,7 +314,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_NECK, wear_neck, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_NECK, wear_neck)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -361,7 +361,7 @@ There are several things that need to be remembered:
 				icon_file = worn_item.worn_icon_digi || DIGITIGRADE_SHOES_FILE // NOVA EDIT CHANGE
 				mutant_override = TRUE // NOVA EDIT ADDITION
 		if(!mutant_override && bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_SHOES, shoes, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_SHOES, shoes)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -411,7 +411,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START - This needs to be refactored.
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_HEAD, head, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_HEAD, head)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -443,7 +443,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_BELT, belt, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_BELT, belt)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -477,7 +477,7 @@ There are several things that need to be remembered:
 				mutant_override = TRUE
 
 		if(!mutant_override && bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_SUIT, wear_suit, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_SUIT, wear_suit)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -527,7 +527,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_MASK, wear_mask, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_MASK, wear_mask)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
@@ -557,7 +557,7 @@ There are several things that need to be remembered:
 		// NOVA EDIT ADDITION START
 		var/mutant_override = FALSE
 		if(bodyshape & BODYSHAPE_CUSTOM)
-			var/species_icon_file = dna.species.generate_custom_worn_icon(LOADOUT_ITEM_MISC, back, src)
+			var/species_icon_file = generate_custom_worn_icon(LOADOUT_ITEM_MISC, back)
 			if(species_icon_file)
 				icon_file = species_icon_file
 				mutant_override = TRUE
