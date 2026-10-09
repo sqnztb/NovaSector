@@ -110,6 +110,8 @@
 #define FEATURE_NECK_ACCESSORY "neck_acc"
 #define FEATURE_GHOUL_COLOR "ghoulcolor"
 #define FEATURE_WINGS_FUNCTIONAL "wings_functional"
+/// The id of the `/datum/species_preset` this mob's heritage is. Only meaningful for species with `uses_heritage`.
+#define FEATURE_HERITAGE "heritage"
 
 // Synth parts
 #define FEATURE_SYNTH_ANTENNA "ipc_antenna"
