@@ -182,6 +182,10 @@ GLOBAL_LIST_INIT(skin_tone_names, list(
 		var/mob/living/carbon/human/H = A
 		if(H.dna && istype(H.dna.species, species_datum))
 			. = TRUE
+		// NOVA EDIT ADDITION START - Custom species heritage
+		else if(H.dna?.heritage_is_species(species_datum))
+			. = TRUE
+		// NOVA EDIT ADDITION END
 
 /// Returns if the given target is a human. Like, a REAL human.
 /// Not a moth, not a felinid (which are human subtypes), but a human.
@@ -190,7 +194,7 @@ GLOBAL_LIST_INIT(skin_tone_names, list(
 		return FALSE
 
 	var/mob/living/carbon/human/human_target = target
-	return human_target.dna?.species?.type == /datum/species/human
+	return human_target.dna?.species?.type == /datum/species/human || human_target.dna?.get_heritage_species_type() == /datum/species/human // NOVA EDIT CHANGE - Custom species heritage - ORIGINAL: return human_target.dna?.species?.type == /datum/species/human
 
 /proc/spawn_atom_to_turf(spawn_type, target, amount, admin_spawn=FALSE, list/extra_args)
 	var/turf/T = get_turf(target)
