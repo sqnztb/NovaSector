@@ -8436,6 +8436,7 @@
 #include "modular_nova\modules\curatorbundle\ronin.dm"
 #include "modular_nova\modules\custom_species\code\heritage.dm"
 #include "modular_nova\modules\custom_species\code\species_preset.dm"
+#include "modular_nova\modules\custom_species\code\heritage_quirks\_heritage.dm"
 #include "modular_nova\modules\customization\__HELPERS\global_lists.dm"
 #include "modular_nova\modules\customization\__HELPERS\mobs.dm"
 #include "modular_nova\modules\customization\__HELPERS\text.dm"
