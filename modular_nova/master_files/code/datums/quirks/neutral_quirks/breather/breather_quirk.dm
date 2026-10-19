@@ -1,5 +1,6 @@
 /datum/quirk/item_quirk/breather
 	abstract_type = /datum/quirk/item_quirk/breather
+	heritage_quirk = TRUE
 	icon = FA_ICON_MASK_VENTILATOR
 	///the message that will show up when the quirk is gained or the round starts
 	var/alert_text = "Be sure to equip your breathing apparatus, or you may end up choking!"
