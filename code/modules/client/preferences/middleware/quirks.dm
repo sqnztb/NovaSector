@@ -97,6 +97,7 @@
 			"customization_options" = customization_options,
 			"nova_stars_only" = initial(quirk.nova_stars_only), // NOVA EDIT ADDITION - Veteran quirks
 			"erp_quirk" = initial(quirk.erp_quirk), // NOVA EDIT ADDITION - Purple ERP quirks
+			"heritage_quirk" = initial(quirk.heritage_quirk), // NOVA EDIT ADDITION - Heritage quirks
 		)
 
 	return list(

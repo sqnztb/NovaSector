@@ -108,6 +108,7 @@ export type Quirk = {
   customization_options?: string[];
   nova_stars_only: boolean; // NOVA EDIT ADDITION - Nova star quirks
   erp_quirk: boolean; // NOVA EDIT ADDITION - Purple ERP quirks
+  heritage_quirk: boolean; // NOVA EDIT ADDITION - Heritage quirks
 };
 
 // NOVA EDIT ADDITION START

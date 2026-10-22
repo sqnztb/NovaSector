@@ -219,6 +219,7 @@
           'neutral': var(--color-white),
           'negative': var(--color-red),
           'erp_quirk': var(--color-purple), // NOVA EDIT ADDITION - Purple ERP quirks
+          'heritage_quirk': var(--color-teal), // NOVA EDIT ADDITION - Heritage quirks
         );
 
         @each $quality, $color-value in $quality_map {

@@ -29,9 +29,11 @@ function getColorValueClass(quirk: Quirk) {
     return 'positive';
   } else if (quirk.value < 0) {
     return 'negative';
-    // NOVA EDIT ADDITION BEGIN - Purple ERP quirks
+    // NOVA EDIT ADDITION BEGIN - Purple ERP quirks, teal heritage quirks
   } else if (quirk.erp_quirk) {
     return 'erp_quirk';
+  } else if (quirk.heritage_quirk) {
+    return 'heritage_quirk';
     // NOVA EDIT ADDITION END
   } else {
     return 'neutral';
